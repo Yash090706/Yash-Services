@@ -1,0 +1,27 @@
+import React from "react";
+import { Link } from "react-router-dom";
+const Header = () => {
+  return (
+    <div className="bg-green-300 flex gap-8 p-3 mx-auto">
+      <h1 className="font-bold">YASH'S SERVICE PROVIDERS</h1>
+      <div className="flex gap-8 mx-auto font-semibold hover:cursor-pointer">
+        <Link to="/">
+          <h1>Home</h1>
+        </Link>
+        <Link to="/services">
+          <h1>Sevices</h1>
+        </Link>
+        <Link to="/signup">
+        <h1>Sign up</h1>
+        </Link>
+      </div>
+      <div className="bg-white mx-auto h-[30px] rounded-lg w-[398px]">
+        <input className="text-center p-1 w-full hover:cursor-pointer font-semibold" type="text" placeholder="Search Service"></input>
+
+      </div>
+      
+    </div>
+  );
+};
+
+export default Header;
