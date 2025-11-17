@@ -1,9 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 const Header = () => {
   return (
     <div className="bg-green-300 flex gap-8 p-3 mx-auto">
-      <h1 className="font-bold">YASH'S SERVICE PROVIDERS</h1>
+      <h1 className="font-bold text-2xl">YASH'S SERVICE PROVIDERS</h1>
       <div className="flex gap-8 mx-auto font-semibold hover:cursor-pointer">
         <Link to="/">
           <h1>Home</h1>
@@ -14,11 +16,23 @@ const Header = () => {
         <Link to="/signup">
         <h1>Sign up</h1>
         </Link>
+        <Link to="/signin">
+        <h1>Sign in</h1>
+        </Link>
       </div>
-      <div className="bg-white mx-auto h-[30px] rounded-lg w-[398px]">
-        <input className="text-center p-1 w-full hover:cursor-pointer font-semibold" type="text" placeholder="Search Service"></input>
+      <div className="bg-white mx-auto h-[30px] rounded-lg w-[398px] flex items-center px-2 gap-2">
+  <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-500" />
+  <input
+    className="p-1 w-full font-semibold outline-none text-center"
+    type="text"
+    placeholder="Search Service"
+  />
+</div>
 
-      </div>
+
+ 
+
+ 
       
     </div>
   );
