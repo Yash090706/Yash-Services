@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 const Header = () => {
   return (
-    <div className="bg-green-300 flex gap-8 p-3 mx-auto">
+    <div className="bg-green-300 flex gap-8 p-3 mx-auto min-w-screen">
       <h1 className="font-bold text-2xl">YASH'S SERVICE PROVIDERS</h1>
       <div className="flex gap-8 mx-auto font-semibold hover:cursor-pointer">
         <Link to="/">

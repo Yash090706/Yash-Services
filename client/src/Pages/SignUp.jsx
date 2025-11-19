@@ -88,6 +88,7 @@ const SignUp = () => {
   };
   return (
     // <div className="bg-gray-50 w-[600px] h-[600px] shadow-[0_0_15px_rgba(0,0,0,0.15)] mx-auto rounded-4xl mt-11">
+    <div className="min-w-screen min-h-screen">
     <div
       className={`bg-gray-50 w-[600px] border-2 mx-auto rounded-4xl shadow-[0_0_15px_rgba(0,0,0,0.15)] transition-all duration-300 
     ${custdata.UserType === "Worker" ? "h-[750px] mt-3" : "h-[600px] mt-11"}`}
@@ -204,6 +205,7 @@ const SignUp = () => {
         </button>
         <br></br>
       </form>
+    </div>
     </div>
   );
 };

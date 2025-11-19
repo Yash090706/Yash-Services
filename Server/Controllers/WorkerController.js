@@ -62,4 +62,17 @@ const w_signin=async(req,res,next)=>{
 
 
 }
-module.exports={w_signup,w_signin}
+const show_workers=async(req,res,next)=>{
+    try{
+        const workers_list=await worker_model.find();
+        res.status(200).json({
+            status:1,
+            wlist:workers_list
+        })
+    }
+    catch{
+        next(errorhandler(500,"Internal Server Error"));
+    }
+
+}
+module.exports={w_signup,w_signin,show_workers}

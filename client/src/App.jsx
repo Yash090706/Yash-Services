@@ -8,6 +8,7 @@ import { ToastContainer} from 'react-toastify';
 import Signin from "./Pages/Signin";
 const App = () => {
   return (
+    <div className="bg-green-100 min-h-screen min-w-screen">
       <BrowserRouter>
       <Header/>
       <ToastContainer/>
@@ -18,7 +19,7 @@ const App = () => {
   <Route path="/signin" element={<Signin/>}/>
 </Routes>
 </BrowserRouter>
-  
+  </div>
   )
 }
 
