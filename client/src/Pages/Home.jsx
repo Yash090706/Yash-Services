@@ -72,9 +72,9 @@ const Home = () => {
                 <p className="text-center text-xl mt-2 font-mono">
                   Role: {worker.role}
                 </p>
-                <p className="text-center text-xl mt-2 font-mono">
-                  Visiting Charges: {worker.v_charges}
-                </p>
+                {/* <p className="text-center text-xl mt-2 font-mono"> */}
+                  {/* Visiting Charges: {worker.v_charges} */}
+                {/* </p> */}
                 <p className="text-center text-xl mt-2 font-mono">
                   <button className="bg-blue-400 p-2 rounded-3xl mb-3 hover:cursor-pointer hover:opacity-70" onClick={()=>getworkerid(worker._id)}>View Details</button>
                 </p>
