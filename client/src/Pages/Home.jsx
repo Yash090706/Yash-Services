@@ -3,9 +3,27 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import userimg from "../assets/userimg.jpg"
+import { useNavigate } from "react-router-dom";
 // import Header from '../Components/Header'
 
 const Home = () => {
+  const navigate=useNavigate();
+  const getworkerid=async(workerid)=>{
+    await axios.get(`http://localhost:8000/yash-services/worker/worker-data/${workerid}`).then((res)=>{
+      if(res.data.status == 1){
+        const wdata=res.data.worker_data
+        navigate("/worker",{state:wdata});
+        
+      }
+      else{
+        return "No Data Found."
+      }
+    
+    }).catch((err)=>{
+      console.log(err.response.data)
+    })
+
+  }
   const [workers_list, setworkers_list] = useState([]);
   const fetch_workers = async () => {
     await axios
@@ -22,6 +40,7 @@ const Home = () => {
         console.log(err.response.data);
       });
   };
+
   useEffect(() => {
     fetch_workers();
   }, []);
@@ -57,7 +76,7 @@ const Home = () => {
                   Visiting Charges: {worker.v_charges}
                 </p>
                 <p className="text-center text-xl mt-2 font-mono">
-                  {/* Experience: {worker.experience} */}
+                  <button className="bg-blue-400 p-2 rounded-3xl mb-3 hover:cursor-pointer hover:opacity-70" onClick={()=>getworkerid(worker._id)}>View Details</button>
                 </p>
               </div>
             ))

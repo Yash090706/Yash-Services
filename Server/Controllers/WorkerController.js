@@ -2,6 +2,7 @@ const bcryptjs=require("bcryptjs");
 const {worker_model}=require("../Models/WorkerModel")
 const errorhandler=require("../Middleware/custom_error")
 const jwt=require("jsonwebtoken");
+const { default: mongoose } = require("mongoose");
 const w_signup=async(req,res,next)=>{
     const{fullname,email,password,mobile,gender,UserType,experience,role,v_charges}=req.body;
     const w_hashed_password=bcryptjs.hashSync(password,10);
@@ -65,9 +66,15 @@ const w_signin=async(req,res,next)=>{
 const show_workers=async(req,res,next)=>{
     try{
         const workers_list=await worker_model.find();
+       
+        const safeworkers=workers_list.map(worker=>{
+             const{password,...restinfo}=worker._doc
+             return restinfo;
+            
+        })
         res.status(200).json({
             status:1,
-            wlist:workers_list
+            wlist:safeworkers
         })
     }
     catch{
@@ -75,4 +82,27 @@ const show_workers=async(req,res,next)=>{
     }
 
 }
-module.exports={w_signup,w_signin,show_workers}
+const worker_info=async(req,res,next)=>{
+    const {id}=req.params;
+
+    try{
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            return next(errorhandler(404,"Invalid Worker Id."))
+        }
+        const worker_individual_info= await worker_model.findOne({_id:id});
+        if(!worker_individual_info){
+            return next(errorhandler(404,"User Not Found."))
+        }
+        const{password:w_hashed_password,...restinfo}=worker_individual_info._doc;
+        res.status(200).json({
+            status:1,
+            worker_data:restinfo
+        })
+
+    }
+    catch{
+        next(errorhandler(500,"Internal Server Error"))
+    }
+
+}
+module.exports={w_signup,w_signin,show_workers,worker_info}

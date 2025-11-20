@@ -6,6 +6,7 @@ import SignUp from "./Pages/SignUp";
 import Header from"./Components/Header"
 import { ToastContainer} from 'react-toastify';
 import Signin from "./Pages/Signin";
+import WorkerPage from "./Pages/WorkerPage";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
@@ -17,6 +18,7 @@ const App = () => {
   <Route path="/services" element={<Services/>}/>
   <Route path="/signup" element={<SignUp/>}/>
   <Route path="/signin" element={<Signin/>}/>
+  <Route path="/worker" element={<WorkerPage/>}/>
 </Routes>
 </BrowserRouter>
   </div>
