@@ -39,7 +39,7 @@ const signin=async(req,res,next)=>{
         if(UserType!=signin_info.UserType){
             return next(errorhandler(400,"Bad Request"));
         }
-        const{password:hashed_password,...others}=signin_info._doc;
+        const{password,...others}=signin_info._doc;
         const token=jwt.sign({id:signin_info._id},process.env.JWT_SECRET_KEY);
         const token_expiry=new Date(Date.now()+60*60*1000);
         res.cookie("WorkerToken",token,{httpOnly:true,expires:token_expiry}).status(200).json({

@@ -1,10 +1,15 @@
 // import React from "react";
 import axios from "axios";
 import { React, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { SignInFailed, SignInStart, SignInSuccess } from "../Redux/WorkerSlice";
+import {
+  USignInFailed,
+  USignInStart,
+  USignInSuccess,
+} from "../Redux/UserSlice";
 const Signin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -44,6 +49,7 @@ const Signin = () => {
     }
     if (signindata.UserType == "Customer") {
       try {
+        dispatch(USignInStart());
         await axios
           .post(
             "http://localhost:8000/yash-services/customer/signin",
@@ -51,22 +57,26 @@ const Signin = () => {
           )
           .then((res) => {
             console.log(res.data);
+            dispatch(USignInSuccess(res.data));
             setsignindata({
               email: "",
               password: "",
               UserType: "",
             });
             toast.success("User Signed in SuccessFully.");
-            setTimeout(()=>{
+            setTimeout(() => {
               navigate("/");
-            },1500)
-          }).catch((err)=>{
-            toast.error("User Signed In Failed."+err.response.data.message);
-            console.log(err)
+            }, 1500);
           })
+          .catch((err) => {
+            toast.error("User Signed In Failed." + err.response.data.message);
+            console.log(err);
+            dispatch(USignInFailed(err));
+          });
       } catch (err) {
         console.log(err);
         toast.error("User Signed In Failed.");
+        dispatch(USignInFailed(err));
       }
     }
   };
@@ -111,6 +121,10 @@ const Signin = () => {
             SIGNIN
           </button>
         </form>
+        <div className="mt-5 ml-3 text-red-600 flex flex-row gap-2 text-xl font-semibold">
+          <h2>Don't Have an Account?</h2>
+          <Link to="/signup"><h2 className="underline">Sign Up</h2></Link>
+        </div>
       </div>
     </div>
   );

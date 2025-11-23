@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link} from "react-router-dom";
 const SignUp = () => {
   const navigate = useNavigate();
   const [custdata, setcustdata] = useState({
@@ -75,137 +75,142 @@ const SignUp = () => {
               UserType: "",
             });
             toast.success(res.data.message);
-            setTimeout(()=>{
-              navigate("/")
-
-            },1500)
+            setTimeout(() => {
+              navigate("/");
+            }, 1500);
           });
       } catch (err) {
         console.log(err);
-        toast.error(" Worker Signup Failed.")
+        toast.error(" Worker Signup Failed.");
       }
     }
   };
   return (
     // <div className="bg-gray-50 w-[600px] h-[600px] shadow-[0_0_15px_rgba(0,0,0,0.15)] mx-auto rounded-4xl mt-11">
     <div className="min-w-screen min-h-screen">
-    <div
-      className={`bg-gray-50 w-[600px] border-2 mx-auto rounded-4xl shadow-[0_0_15px_rgba(0,0,0,0.15)] transition-all duration-300 
+      <div
+        className={`bg-gray-50 w-[600px] border-2 mx-auto rounded-4xl shadow-[0_0_15px_rgba(0,0,0,0.15)] transition-all duration-300 
     ${custdata.UserType === "Worker" ? "h-[750px] mt-3" : "h-[600px] mt-11"}`}
-    >
-      <ToastContainer />
-      <h1 className="font-semibold text-4xl text-center p-3">SIGN UP</h1>
+      >
+        <ToastContainer />
+        <h1 className="font-semibold text-4xl text-center p-3">SIGN UP</h1>
 
-      <form className="mt-4 flex flex-col gap-4" onSubmit={handleSubmit}>
-        {/* <label className="ml-3 font-semibold text-[18px]">Full Name:</label> */}
-        <input
-          type="text"
-          className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
-          placeholder="Your Full Name"
-          onChange={handleChange}
-          id="fullname"
-          value={custdata.fullname}
-        ></input>
-        {/* <label className="ml-3 font-semibold text-[18px]">Email:</label> */}
-        <input
-          type="email"
-          className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
-          placeholder="Your Email"
-          onChange={handleChange}
-          id="email"
-          value={custdata.email}
-        ></input>
-        <input
-          type="password"
-          className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
-          placeholder="Your Password"
-          onChange={handleChange}
-          id="password"
-          value={custdata.password}
-        ></input>
-        <div className="flex gap-3 bg-white p-3 rounded-lg border justify-center shadow-[0_6px_10px_rgba(0,0,0,0.15)]">
-          <label className="ml-3 font-semibold text-[20px] ">Gender : </label>
-          <h1 className="font-semibold text-[20px]">Male</h1>
+        <form className="mt-4 flex flex-col gap-4" onSubmit={handleSubmit}>
+          {/* <label className="ml-3 font-semibold text-[18px]">Full Name:</label> */}
           <input
-            type="radio"
-            name="gender"
-            value="Male"
+            type="text"
+            className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
+            placeholder="Your Full Name"
             onChange={handleChange}
-            id="gender"
-            checked={custdata.gender === "Male"}
+            id="fullname"
+            value={custdata.fullname}
           ></input>
-          <h1 className="font-semibold text-[20px]">Female</h1>
+          {/* <label className="ml-3 font-semibold text-[18px]">Email:</label> */}
           <input
-            type="radio"
-            name="gender"
-            value="Female"
+            type="email"
+            className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
+            placeholder="Your Email"
             onChange={handleChange}
-            id="gender"
-            checked={custdata.gender === "Female"}
+            id="email"
+            value={custdata.email}
           ></input>
-        </div>
-        <input
-          type="text"
-          className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
-          placeholder="Mobile Number"
-          onChange={handleChange}
-          id="mobile"
-          value={custdata.mobile}
-        ></input>
+          <input
+            type="password"
+            className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
+            placeholder="Your Password"
+            onChange={handleChange}
+            id="password"
+            value={custdata.password}
+          ></input>
+          <div className="flex gap-3 bg-white p-3 rounded-lg border justify-center shadow-[0_6px_10px_rgba(0,0,0,0.15)]">
+            <label className="ml-3 font-semibold text-[20px] ">Gender : </label>
+            <h1 className="font-semibold text-[20px]">Male</h1>
+            <input
+              type="radio"
+              name="gender"
+              value="Male"
+              onChange={handleChange}
+              id="gender"
+              checked={custdata.gender === "Male"}
+            ></input>
+            <h1 className="font-semibold text-[20px]">Female</h1>
+            <input
+              type="radio"
+              name="gender"
+              value="Female"
+              onChange={handleChange}
+              id="gender"
+              checked={custdata.gender === "Female"}
+            ></input>
+          </div>
+          <input
+            type="text"
+            className="w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
+            placeholder="Mobile Number"
+            onChange={handleChange}
+            id="mobile"
+            value={custdata.mobile}
+          ></input>
 
-        <select
-          className="bg-white p-3 rounded-lg border shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
-          onChange={handleChange}
-          id="UserType"
-          value={custdata.UserType}
-        >
-          <option className="text-center bg-gray-200 font-semibold">
-            Select Type:
-          </option>
-          <option className="text-center bg-gray-200 font-semibold">
-            Worker
-          </option>
-          <option className="text-center font-semibold bg-gray-200">
-            Customer
-          </option>
-        </select>
-        <input
-          type="text"
-          placeholder="Your Role"
-          id="role"
-          value={wdata.role}
-          onChange={handleWorker}
-          className={`w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)] transition-all duration-300 ${
-            custdata.UserType === "Worker" ? "block" : "hidden"
-          }`}
-        ></input>
-        <input
-          type="number"
-          placeholder="Visiting Charges"
-          onChange={handleWorker}
-          id="v_charges"
-          value={wdata.v_charges}
-          className={`w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)] transition-all duration-300 ${
-            custdata.UserType === "Worker" ? "block" : "hidden"
-          }`}
-        ></input>
-        <input
-          type="number"
-          placeholder=" Work Experience"
-          onChange={handleWorker}
-          id="experience"
-          value={wdata.experience}
-          className={`w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)] transition-all duration-300 ${
-            custdata.UserType === "Worker" ? "block" : "hidden"
-          }`}
-        ></input>
+          <select
+            className="bg-white p-3 rounded-lg border shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
+            onChange={handleChange}
+            id="UserType"
+            value={custdata.UserType}
+          >
+            <option className="text-center bg-gray-200 font-semibold">
+              Select Type:
+            </option>
+            <option className="text-center bg-gray-200 font-semibold">
+              Worker
+            </option>
+            <option className="text-center font-semibold bg-gray-200">
+              Customer
+            </option>
+          </select>
+          <input
+            type="text"
+            placeholder="Your Role"
+            id="role"
+            value={wdata.role}
+            onChange={handleWorker}
+            className={`w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)] transition-all duration-300 ${
+              custdata.UserType === "Worker" ? "block" : "hidden"
+            }`}
+          ></input>
+          <input
+            type="number"
+            placeholder="Visiting Charges"
+            onChange={handleWorker}
+            id="v_charges"
+            value={wdata.v_charges}
+            className={`w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)] transition-all duration-300 ${
+              custdata.UserType === "Worker" ? "block" : "hidden"
+            }`}
+          ></input>
+          <input
+            type="number"
+            placeholder=" Work Experience"
+            onChange={handleWorker}
+            id="experience"
+            value={wdata.experience}
+            className={`w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)] transition-all duration-300 ${
+              custdata.UserType === "Worker" ? "block" : "hidden"
+            }`}
+          ></input>
 
-        <button className="bg-green-300 p-3 rounded-lg border font-semibold hover:cursor-pointer hover:opacity-75">
-          SIGNUP
-        </button>
-        <br></br>
-      </form>
-    </div>
+          <button className="bg-green-300 p-3 rounded-lg border font-semibold hover:cursor-pointer hover:opacity-75">
+            SIGNUP
+          </button>
+        </form>
+        <div className="ml-3 text-red-600 flex flex-row gap-2 font-semibold text-xl mt-5">
+  <h2>Already Have an Account?</h2>
+  <Link to="/signin">
+    <h2 className="underline">Sign In</h2>
+  </Link>
+</div>
+      </div>
+      
     </div>
   );
 };

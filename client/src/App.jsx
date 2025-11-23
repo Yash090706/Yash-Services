@@ -7,6 +7,10 @@ import Header from"./Components/Header"
 import { ToastContainer} from 'react-toastify';
 import Signin from "./Pages/Signin";
 import WorkerPage from "./Pages/WorkerPage";
+import UserProfile from "./Pages/UserProfile";
+import PrivateRoute from "./Components/PrivateRoute";
+import WorkerPrivateRoute from "./Components/WorkerPrivateRoute";
+import WorkerProfile from "./Pages/WorkerProfile";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
@@ -19,6 +23,15 @@ const App = () => {
   <Route path="/signup" element={<SignUp/>}/>
   <Route path="/signin" element={<Signin/>}/>
   <Route path="/worker" element={<WorkerPage/>}/>
+  <Route element={<PrivateRoute/>}>
+  <Route path="/profile" element={<UserProfile/>}></Route>
+  </Route>
+  <Route elemet={<WorkerPrivateRoute/>}>
+  <Route path="/w-profile" element={<WorkerProfile/>}>
+
+  </Route>
+
+  </Route>
 </Routes>
 </BrowserRouter>
   </div>

@@ -2,9 +2,12 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import workerreducer from "../WorkerSlice"
 import storage from "redux-persist/lib/storage"
 import {persistReducer,persistStore} from "redux-persist"
+import userreducer from "../UserSlice"
+
 
 const rootreducer=combineReducers({
-    worker:workerreducer
+    worker:workerreducer,
+    user:userreducer
 })
 const persistconfig={
     key:"root",
@@ -13,9 +16,8 @@ const persistconfig={
 }
 const persistedReducer=persistReducer(persistconfig,rootreducer)
 export const store=configureStore({
-    reducer:{
-        persistedReducer
-    },
+    reducer:
+        persistedReducer,
     middleware:(getDefaultMiddleware)=>getDefaultMiddleware({
         serializableCheck:false,
     })
