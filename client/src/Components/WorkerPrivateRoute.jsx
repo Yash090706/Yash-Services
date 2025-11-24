@@ -1,12 +1,12 @@
 import React from 'react'
-import { Outlet,Link } from 'react-router-dom'
+import { Outlet,Link, Navigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 const WorkerPrivateRoute = () => {
     const {workerinfo}=useSelector((state)=>state.worker)
   return (
     <div>
         {
-            workerinfo ? <Outlet/> : <Link to="/signin"></Link>
+            workerinfo ? <Outlet/> : <Navigate to="/signin"></Navigate>
         }
       
     </div>

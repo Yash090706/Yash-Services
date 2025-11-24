@@ -55,7 +55,7 @@ const w_signin=async(req,res,next)=>{
     const token_expiry=new Date(Date.now()+60*60*1000);
 
     // Send the created token in cookie on browser
-    res.cookie("access_token",token,{httpOnly:true,expires:token_expiry}).status(200).json(others);
+    res.cookie("worker_token",token,{httpOnly:true,expires:token_expiry}).status(200).json(others);
     }
     catch(err){
         next(err);

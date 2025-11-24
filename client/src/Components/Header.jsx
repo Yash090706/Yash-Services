@@ -22,6 +22,7 @@ const Header = () => {
         <div className="flex flex-row gap-5">
           {userinfo ? (<>
             <span className="text-blue-700 font-mono text-[20px]">{`Welcome - ${userinfo.others.fullname}`}</span>
+            <h1>{console.log(userinfo.others.fullname)}</h1>
             <Link to="/profile">Profile
             </Link>
             </>

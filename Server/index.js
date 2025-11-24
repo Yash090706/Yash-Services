@@ -8,7 +8,14 @@ require("dotenv").config();
 // Parsing JSON Data
 app.use(express.json());
 // Cors To Connect Backend with Frontend
-app.use(cors());
+app.use(cors({origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+// Cookies Parser
+const cookie_parser=require("cookie-parser");
+app.use(cookie_parser());
 // Static Routes
 // Customer
 app.use("/yash-services/customer",user_route);
