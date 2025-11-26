@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import userimg from "../assets/userimg.jpg";
 import axios from "axios";
-import { UUpdateSuccess } from "../Redux/UserSlice";
+import { USignOut, UUpdateSuccess } from "../Redux/UserSlice";
 import {toast,ToastContainer} from "react-toastify"
+import { useNavigate } from "react-router-dom";
 axios.defaults.withCredentials = true;
 const UserProfile = () => {
+  const navigate=useNavigate();
   const { userinfo } = useSelector((state) => state.user);
   const [disabled,setDisabled]=useState(true);
   const dispatch=useDispatch();
@@ -40,6 +42,23 @@ const UserProfile = () => {
 
 
   }
+}
+const handleSignOut=async(e)=>{
+  e.preventDefault();
+  try{
+  await axios.get("http://localhost:8000/yash-services/customer/user-signout")
+  dispatch(USignOut());
+  toast.success("User Signed Out Successfully.")
+  setTimeout(()=>{
+    navigate("/signin")
+  },8000)
+  
+  }
+  catch(err){
+    console.log(err)
+    toast.error("User Signed Out Failed.")
+  }
+
 }
   useEffect(()=>{
     set_updated_data({
@@ -111,9 +130,13 @@ const UserProfile = () => {
               id="mobile"
             ></input>
           </div>
-          <button className=" p-3 rounded-4xl text-xl font-serif w-[200px] mx-auto bg-gray-700 text-white hover:cursor-pointer hover:opacity-70 border-blue-700">
+          <div className="flex flex-row justify-center gap-5">
+          <button type="submit" className=" p-3 rounded-4xl text-xl font-serif w-[200px] bg-gray-700 text-white hover:cursor-pointer hover:opacity-70 border-blue-700">
             {disabled ? "Edit ":"Save"} 
           </button>
+          <button type=" button" className="p-3 bg-red-500 rounded-4xl w-[200px]  text-white shadow-[0_6px_10px_rgba(0,0,0,0.15) font-serif" onClick={handleSignOut} >Sign Out</button>
+          </div>
+          {/* <button type=" button" className=" bg-red-500 rounded-4xl w-[200px]  text-white shadow-[0_6px_10px_rgba(0,0,0,0.15) font-mono" >Sign Out</button> */}
         </form>
       </div>
     </div>

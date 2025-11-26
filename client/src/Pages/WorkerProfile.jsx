@@ -5,8 +5,14 @@ import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { WUpdateFailed, WUpdateStart, WUpdateSuccess } from "../Redux/WorkerSlice";
-import { ToastContainer,toast} from "react-toastify";
+import {
+  WSignOut,
+  WUpdateFailed,
+  WUpdateStart,
+  WUpdateSuccess,
+} from "../Redux/WorkerSlice";
+import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 const WorkerProfile = () => {
   const { workerinfo } = useSelector((state) => state.worker);
   const [disabled, setdisabled] = useState(true);
@@ -19,7 +25,8 @@ const WorkerProfile = () => {
     v_charges: workerinfo.v_charges,
     password: "",
   });
-  const dispatch=useDispatch();
+  const navigate=useNavigate();
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setformdata({ ...formdata, [e.target.id]: e.target.value });
   };
@@ -39,23 +46,37 @@ const WorkerProfile = () => {
           .then((res) => {
             dispatch(WUpdateSuccess(res.data));
             console.log(res.data);
-            toast.success("Worker Profile Updated SuccessFully.")
-            setdisabled(true)
+            toast.success("Worker Profile Updated SuccessFully.");
+            setdisabled(true);
           })
           .catch((err) => {
             console.log(err);
-            dispatch(WUpdateFailed(err))
-            toast.error("Worker Profile Update Failed.")
-            setdisabled(true)
+            dispatch(WUpdateFailed(err));
+            toast.error("Worker Profile Update Failed.");
+            setdisabled(true);
           });
       } catch (err) {
         console.log(err);
-        dispatch(WUpdateFailed(err))
-        toast.error("Worker Profile Update Failed.")
-        setdisabled(true)
+        dispatch(WUpdateFailed(err));
+        toast.error("Worker Profile Update Failed.");
+        setdisabled(true);
       }
     }
   };
+  const handleSignOut=async(e)=>{
+    e.preventDefault();
+    try{
+    await axios.get("http://localhost:8000/yash-services/worker/w-signout")
+    dispatch(WSignOut());
+    navigate("/signin")
+    
+    }
+    catch(err){
+      console.log(err)
+    }
+    
+
+  }
   useEffect(() => {
     setformdata({
       fullname: workerinfo.fullname,
@@ -66,11 +87,11 @@ const WorkerProfile = () => {
       v_charges: workerinfo.v_charges,
       password: "",
     });
-  },[workerinfo]);
+  }, [workerinfo]);
 
   return (
     <div className="flex flex-row gap-20">
-      <ToastContainer/>
+      <ToastContainer />
       <div className="w-[600px] h-[600px] bg-gray-300  mt-9 rounded-3xl">
         <div className="border-10 border-gray-500 w-[400px] h-[300px] mx-auto text-center mt-7">
           <img
@@ -108,7 +129,7 @@ const WorkerProfile = () => {
           </div>
           <button
             type="submit"
-            className="bg-gray-600 mx-auto p-3 rounded-4xl text-white w-[200px] hover:cursor-pointer hover:opacity-70"
+            className="bg-gray-600 mx-auto p-3 rounded-4xl text-white w-[200px] hover:cursor-pointer hover:opacity-70 shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
             onClick={handleSubmit}
           >
             {disabled ? "Edit" : "Save"}
@@ -182,6 +203,13 @@ const WorkerProfile = () => {
             className=" bg-gray-200 w-full p-3 rounded-4xl text-center shadow-[0_6px_10px_rgba(0,0,0,0.15)]"
           ></input>
         </div>
+        <button
+          className="p-3 mt-2 bg-red-500 rounded-4xl w-[200px] mx-auto text-white shadow-[0_6px_10px_rgba(0,0,0,0.15)]
+        hover:cursor-pointer hover:opacity-70"
+        onClick={handleSignOut}
+        >
+          Logout
+        </button>
       </div>
     </div>
   );

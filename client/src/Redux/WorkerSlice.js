@@ -33,9 +33,14 @@ const WorkerSlice=createSlice({
         WUpdateFailed:(state,action)=>{
             state.loading=false,
             state.error=action.payload
+        },
+        WSignOut:(state)=>{
+            state.workerinfo=null,
+            state.loading=false,
+            state.error=false
         }
 
     }
 })
-export const {SignInFailed,SignInStart,SignInSuccess,WUpdateFailed,WUpdateStart,WUpdateSuccess}=WorkerSlice.actions;
+export const {SignInFailed,SignInStart,SignInSuccess,WUpdateFailed,WUpdateStart,WUpdateSuccess,WSignOut}=WorkerSlice.actions;
 export default WorkerSlice.reducer;

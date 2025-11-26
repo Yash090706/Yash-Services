@@ -161,6 +161,13 @@ const w_update = async (req, res, next) => {
     return next(errorhandler(500, "Internal Server Error."));
   }
 };
+const w_sign_out=(req,res,next)=>{
+  res.clearCookie("worker_token",{httpOnly:true}).status(200).json({
+    status:1,
+    msg:"Worker Signed Out SuccessFully."
+  })
+
+}
 module.exports = {
   w_signup,
   w_signin,
@@ -168,4 +175,5 @@ module.exports = {
   worker_info,
   verify_w_token,
   w_update,
+  w_sign_out
 };

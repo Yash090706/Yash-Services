@@ -109,5 +109,11 @@ const update_user=async(req,res,next)=>{
     }
 
 }
+const user_sign_out=(req,res,next)=>{
+    res.clearCookie("user_token",{httpOnly:true}).status(200).json({
+        status:1,
+        msg:"User Signed Out SuccessFully."
+    })
+}
 
-module.exports={signup,signin,verify_token,update_user};
+module.exports={signup,signin,verify_token,update_user,user_sign_out};
