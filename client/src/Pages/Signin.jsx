@@ -82,6 +82,7 @@ const Signin = () => {
   };
   return (
     <div className="min-h-screen">
+      <ToastContainer/>
       <div className="bg-gray-50 w-[600px] h-[500px] mx-auto mt-11 rounded-4xl border-2 shadow-[0_0_15px_rgba(0,0,0,0.15)] transition-all duration-300 ">
         <h1 className="text-center p-3 font-semibold text-5xl">Sign in </h1>
         <form className="flex flex-col gap-7 mt-10" onSubmit={handleSubmit}>

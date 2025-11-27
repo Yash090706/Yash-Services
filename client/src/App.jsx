@@ -11,6 +11,7 @@ import UserProfile from "./Pages/UserProfile";
 import PrivateRoute from "./Components/PrivateRoute";
 import WorkerPrivateRoute from "./Components/WorkerPrivateRoute";
 import WorkerProfile from "./Pages/WorkerProfile";
+import FilterWorkerspage from "./Pages/FilterWorkerspage";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
@@ -23,6 +24,7 @@ const App = () => {
   <Route path="/signup" element={<SignUp/>}/>
   <Route path="/signin" element={<Signin/>}/>
   <Route path="/worker" element={<WorkerPage/>}/>
+  <Route path="/w-filter" element={<FilterWorkerspage/>}/>
   <Route element={<PrivateRoute/>}>
   <Route path="/profile" element={<UserProfile/>}></Route>
   </Route>

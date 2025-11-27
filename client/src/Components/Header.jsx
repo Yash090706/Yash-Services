@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
@@ -7,6 +7,20 @@ import { useSelector } from "react-redux";
 const Header = () => {
   const { userinfo } = useSelector((state) => state.user);
   const { workerinfo } = useSelector((state) => state.worker);
+  const [query,setquery]=useState("");
+  const navigate=useNavigate()
+  const handleChange=(e)=>{
+    setquery(e.target.value)
+   
+  }
+  const handleSearch=(e)=>{
+    e.preventDefault();
+     navigate(`/w-filter?role=${query}&fullname=${query}&query=${query}`);
+     setquery("")
+     
+  }
+
+
   return (
     <div className="bg-green-300 flex gap-8 p-3 mx-auto min-w-screen">
       <h1 className="font-bold text-2xl text-blue-600">
@@ -43,13 +57,17 @@ const Header = () => {
         {/* <h1>Worker</h1> */}
         {/* </Link> */}
       </div>
+      {/* <Link to="w-filter">Workers Filter</Link> */}
 
       <div className="bg-white mx-auto h-[30px] rounded-lg w-[398px] flex items-center px-2 gap-2">
-        <FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-500" />
+        <button className="hover:cursor-pointer" onClick={handleSearch}><FontAwesomeIcon icon={faMagnifyingGlass} className="text-gray-500" /></button>
         <input
           className="p-1 w-full font-semibold outline-none text-center"
           type="text"
           placeholder="Search Service"
+          // id="search"
+          onChange={handleChange}
+          value={query}
         />
       </div>
     </div>
