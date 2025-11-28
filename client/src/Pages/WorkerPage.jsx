@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { useLocation,Link, useNavigate } from 'react-router-dom'
 import userimg from "../assets/userimg.jpg"
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
+import { Selected_Worker_Success } from '../Redux/SelectedWorkerSlice'
 const WorkerPage = () => {
     const location=useLocation();
     const worker=location.state
@@ -10,25 +11,30 @@ const WorkerPage = () => {
     const{workerinfo}=useSelector((state)=>state.worker)
     const[disabled,setdisabled]=useState(false)
     const navigate=useNavigate();
+    // const {sel_worker}=useSelector((state)=>state.selected_worker);
+    const dispatch=useDispatch();
     const proceed_to_hire=(e)=>{
       e.preventDefault();
       if(userinfo?.others?._id || workerinfo?._id){
-        navigate("/services")
+        navigate("/services");
+        console.log(worker)
+        dispatch(Selected_Worker_Success({worker}))
         
+        // console.log(worker)
       }
       else{
         navigate("/signin")
       }
 
     }
-useEffect(()=>{
-  if(!workerinfo || workerinfo._id != worker._id){
-    setdisabled(true)
-  }
-  else{
-    setdisabled(false)
-  }
-},[workerinfo,worker])
+// useEffect(()=>{
+  // if(!workerinfo || workerinfo._id != worker._id){
+    // setdisabled(true)
+  // }
+  // else{
+    // setdisabled(false)
+  // }
+// },[workerinfo,worker])
   return (
     <>
     <Link to="/">
