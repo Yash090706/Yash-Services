@@ -12,6 +12,7 @@ import PrivateRoute from "./Components/PrivateRoute";
 import WorkerPrivateRoute from "./Components/WorkerPrivateRoute";
 import WorkerProfile from "./Pages/WorkerProfile";
 import FilterWorkerspage from "./Pages/FilterWorkerspage";
+import ServicePrivateRoute from "./Components/ServicePrivateRoute";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
@@ -20,7 +21,7 @@ const App = () => {
       <ToastContainer/>
 <Routes>
   <Route path="/" element={<Home/>}/>
-  <Route path="/services" element={<Services/>}/>
+  {/* <Route path="/services" element={<Services/>}/> */}
   <Route path="/signup" element={<SignUp/>}/>
   <Route path="/signin" element={<Signin/>}/>
   <Route path="/worker" element={<WorkerPage/>}/>
@@ -33,6 +34,10 @@ const App = () => {
 
   </Route>
 
+  </Route>
+  <Route element={<ServicePrivateRoute/>}>
+    <Route path="/services" element={<Services/>}>
+    </Route>
   </Route>
 </Routes>
 </BrowserRouter>

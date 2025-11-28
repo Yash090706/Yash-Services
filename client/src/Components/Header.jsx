@@ -30,9 +30,9 @@ const Header = () => {
         <Link to="/">
           <h1>Home</h1>
         </Link>
-        <Link to="/services">
-          <h1>Sevices</h1>
-        </Link>
+        {/* <Link to="/services"> */}
+          {/* <h1>Sevices</h1> */}
+        {/* </Link> */}
         <div className="flex flex-row gap-5">
           {userinfo ? (<>
             <span className="text-blue-700 font-mono text-[20px]">{`Welcome - ${userinfo.others.fullname}`}</span>
