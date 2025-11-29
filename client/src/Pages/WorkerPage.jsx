@@ -20,6 +20,7 @@ const WorkerPage = () => {
         console.log(worker)
         dispatch(Selected_Worker_Success({worker}))
         
+        
         // console.log(worker)
       }
       else{

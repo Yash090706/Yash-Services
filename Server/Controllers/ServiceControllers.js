@@ -2,6 +2,7 @@ const errorhandler = require("../Middleware/custom_error");
 const { hire_model } = require("../Models/HireModel");
 const { user_model } = require("../Models/UserModel");
 const { worker_model } = require("../Models/WorkerModel");
+const jwt=require("jsonwebtoken")
 const search=async(req,res,next)=>{
     const query=req.query.role || req.query.fullname||""
     try{
@@ -61,4 +62,32 @@ catch(err){
 }
     
 }
-module.exports={search,hire_request}
+const verify_hire_token=(req,res,next)=>{
+     const token=req.cookies.worker_token
+ if(!token){
+     return next(errorhandler(401,"Access Denied,Sign in Again"))
+ }
+
+    jwt.verify(token,process.env.JWT_SECRET_KEY,(err,worker)=>{
+        if(err){
+            return(next(errorhandler(402,"Token is not valid")))
+        }
+        req.worker=worker;
+        next();
+    })
+
+}
+const view_hire_request=async (req,res,next)=>{
+    const {wid}=req.params
+    if(req.worker.id!=wid){
+        return next(errorhandler(400,"Bad Request"))
+    }
+    const req_info= await hire_model.find({workerid:wid})
+
+    res.status(200).json({
+        status:1,
+        h_req_info:req_info
+    })
+
+}
+module.exports={search,hire_request,verify_hire_token,view_hire_request}

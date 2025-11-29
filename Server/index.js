@@ -15,12 +15,15 @@ app.use(cors({origin: "http://localhost:5173",
 }));
 // Cookies Parser
 const cookie_parser=require("cookie-parser");
+const { service_routes } = require("./Routes/ServiceRoutes");
 app.use(cookie_parser());
 // Static Routes
 // Customer
 app.use("/yash-services/customer",user_route);
 // Worker
-app.use("/yash-services/worker",worker_route)
+app.use("/yash-services/worker",worker_route);
+// Service Routes
+app.use("/yash-services/services",service_routes);
 // App's MiddleWare
 app.use((err,req,res,next)=>{
     const statuscode=err.statuscode || 500;

@@ -2,9 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 // import { useRef } from "react";
 import { useSelector } from "react-redux";
-// import { useLocation } from "react-router-dom";
-// import { useParams } from "react-router-dom";
-// import { useParams} from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
 
 const Services = () => {
   // const location=useLocation();
@@ -13,36 +11,53 @@ const Services = () => {
   // const location=useLocation();
   const { userinfo } = useSelector((state) => state.user);
   const { workerinfo } = useSelector((state) => state.worker);
-  const {sel_worker}=useSelector((state)=>state.selected_worker);
+  const { sel_worker } = useSelector((state) => state.selected_worker);
   // const worker=location.state
- const [formdata, setformdata] = useState({
-   fullname: userinfo?.others?.fullname || workerinfo?.fullname || "",
-   mobile: userinfo?.others?.mobile || workerinfo?.mobile || "",
-   address: "",
-   date:"",
-   message:""
- });
+  const [formdata, setformdata] = useState({
+    fullname: userinfo?.others?.fullname || workerinfo?.fullname || "",
+    mobile: userinfo?.others?.mobile || workerinfo?.mobile || "",
+    address: "",
+    date: "",
+    message: "",
+  });
   const handleChange = (e) => {
     setformdata({ ...formdata, [e.target.id]: e.target.value });
   };
-  const handleRequest=async(e)=>{
+  const handleRequest = async (e) => {
     e.preventDefault();
     // console.log(worker)
-    console.log(sel_worker)
-     
- 
-      try{
-    await axios.post(`http://localhost:8000/yash-services/customer/hire_request/${userinfo.others._id}/${sel_worker._id}`,formdata).then((res)=>{
-      console.log(res.data)
-    })
-  }
-  catch(err){
-    console.log(err)
-  }
+    console.log(sel_worker);
+    console.log(sel_worker.worker._id);
 
-  }
+    try {
+      await axios
+        .post(
+          `http://localhost:8000/yash-services/services/hire_request/${userinfo.others._id}/${sel_worker.worker._id}`,
+          formdata
+        )
+        .then((res) => {
+          console.log(res.data);
+          toast.success(
+            `Request Sent To Worker ${sel_worker.worker.fullname} SuccessFully.`
+          );
+          toast.success(
+            `Wait Until ${sel_worker.worker.fullname} Accepts your Request,Our Team will Notify You.`
+          );
+          setformdata({
+            fullname: userinfo?.others?.fullname || workerinfo?.fullname || "",
+            mobile: userinfo?.others?.mobile || workerinfo?.mobile || "",
+            address: "",
+            date: "",
+            message: "",
+          });
+        });
+    } catch (err) {
+      console.log(err);
+    }
+  };
   return (
     <div className="flex flex-row gap-30">
+      <ToastContainer />
       <div className="bg-green-200 w-[600px] h-[400px] mt-20 ml-15 rounded-3xl p-15 ">
         <input
           type="text"
@@ -83,9 +98,13 @@ const Services = () => {
           value={formdata.date}
           onChange={handleChange}
         ></input>
-        <button className="mt-10 p-3 bg-blue-400 font-mono rounded-4xl ml-40 text-amber-50 hover:cursor-pointer hover:opacity-70" onClick={handleRequest}>
+        <button
+          className="mt-10 p-3 bg-blue-400 font-mono rounded-4xl ml-20 text-amber-50 hover:cursor-pointer hover:opacity-70"
+          onClick={handleRequest}
+        >
           Send Request
         </button>
+        <button className="p-3 bg-blue-400 font-mono rounded-4xl ml-10 text-amber-50 hover:cursor-pointer hover:opacity-70">View All Requests</button>
       </div>
     </div>
   );
