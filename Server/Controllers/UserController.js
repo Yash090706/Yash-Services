@@ -42,7 +42,7 @@ const signin=async(req,res,next)=>{
         const{password:hashed_password,...others}=signin_info._doc;
         const token=jwt.sign({id:signin_info._id},process.env.JWT_SECRET_KEY);
         // const token_expiry=new Date(Date.now()+60*60*1000);
-        const token_expiry = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+        const token_expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
         res.cookie("user_token",token,{httpOnly:true,expires:token_expiry,secure: false,         // true only when using HTTPS
   sameSite: "lax",}).status(200).json({
             others

@@ -7,6 +7,14 @@ import { Selected_Worker_Success } from '../Redux/SelectedWorkerSlice'
 const WorkerPage = () => {
     const location=useLocation();
     const worker=location.state
+    if (!worker) {
+  return (
+    <div className="text-center text-2xl mt-10">
+      Invalid access. Please select a worker from the list.
+    </div>
+  );
+}
+
     const {userinfo}=useSelector((state)=>state.user)
     const{workerinfo}=useSelector((state)=>state.worker)
     const[disabled,setdisabled]=useState(false)
@@ -28,7 +36,14 @@ const WorkerPage = () => {
       }
 
     }
-// useEffect(()=>{
+
+
+
+
+
+
+
+//
   // if(!workerinfo || workerinfo._id != worker._id){
     // setdisabled(true)
   // }

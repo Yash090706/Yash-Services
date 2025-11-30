@@ -14,19 +14,24 @@ import WorkerProfile from "./Pages/WorkerProfile";
 import FilterWorkerspage from "./Pages/FilterWorkerspage";
 import ServicePrivateRoute from "./Components/ServicePrivateRoute";
 import WorkerRequests from "./Pages/WorkerRequests";
+import WorkerSingleRequest from "./Pages/WorkerSingleRequest";
+import UserRequests from "./Pages/UserRequests";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
       <BrowserRouter>
       <Header/>
-      <ToastContainer/>
+      <ToastContainer position="top-center"/>
 <Routes>
   <Route path="/" element={<Home/>}/>
   {/* <Route path="/services" element={<Services/>}/> */}
   <Route path="/signup" element={<SignUp/>}/>
   <Route path="/signin" element={<Signin/>}/>
+  <Route path="user-req" element={<UserRequests/>}/>
   <Route path="/worker" element={<WorkerPage/>}/>
-  <Route path="/user-req" element={<WorkerRequests/>}/>
+  <Route path="/worker-req" element={<WorkerRequests/>}></Route>
+  <Route path="/worker-req/:reqid" element={<WorkerSingleRequest/>}/>
+  
   <Route path="/w-filter" element={<FilterWorkerspage/>}/>
   <Route element={<PrivateRoute/>}>
   <Route path="/profile" element={<UserProfile/>}></Route>

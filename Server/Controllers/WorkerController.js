@@ -59,7 +59,8 @@ const w_signin = async (req, res, next) => {
       { id: validate_worker._id },
       process.env.JWT_SECRET_KEY
     );
-    const token_expiry = new Date(Date.now() + 60 * 60 * 1000);
+    // const token_expiry = new Date(Date.now() + 60 * 60 * 1000);
+    const token_expiry=new Date(Date.now() + 24 * 60 * 60 * 1000)
 
     // Send the created token in cookie on browser
     res

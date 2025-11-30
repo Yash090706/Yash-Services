@@ -4,11 +4,14 @@ import storage from "redux-persist/lib/storage"
 import {persistReducer,persistStore} from "redux-persist"
 import userreducer from "../UserSlice"
 import sel_workerred from"../SelectedWorkerSlice"
+import worker_reqReducer from "../WorkerRequestSlice"
 
 const rootreducer=combineReducers({
     worker:workerreducer,
     user:userreducer,
-    selected_worker:sel_workerred
+    selected_worker:sel_workerred,
+    worker_req_slice:worker_reqReducer
+
 })
 const persistconfig={
     key:"root",

@@ -6,15 +6,23 @@ const initialState={
     error:false
 
 }
-const user_req_slice=createSlice({
+const worker_req_slice=createSlice({
     name:"worker_req_slice",
     initialState,
     reducers:{
-        setRequests:(state,action)=>{
+        SetRequests:(state,action)=>{
             state.worker_requests=action.payload   
         },
-        clearSingleRequest:(state,action)=>{
+        ClearSingleRequest:(state,action)=>{
             const reqId=action.payload;
+            state.worker_requests=state.worker_requests.filter(req=>req._id!=reqId)
+
+        },
+        ClearAllRequests:(state,action)=>{
+            state.worker_requests=[]
         }
     }
 })
+
+export default worker_req_slice.reducer;
+export const {SetRequests,ClearSingleRequest,ClearAllRequests}=worker_req_slice.actions;

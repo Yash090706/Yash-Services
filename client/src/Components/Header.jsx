@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 const Header = () => {
   const { userinfo } = useSelector((state) => state.user);
   const { workerinfo } = useSelector((state) => state.worker);
+  const {worker_requests}=useSelector((state)=>state.worker_req_slice)
   const [query,setquery]=useState("");
   const navigate=useNavigate()
   const handleChange=(e)=>{
@@ -56,7 +57,25 @@ const Header = () => {
         {/* <Link to="/worker"> */}
         {/* <h1>Worker</h1> */}
         {/* </Link> */}
-        <Link to="/user-req">Requests</Link>
+        {
+          workerinfo ? (
+            <Link to="/worker-req" className="relative inline-block">
+              <span>
+                Requests
+              </span>
+              {worker_requests.length > 0 && (<span className="
+      absolute -top-2 -right-3
+      bg-red-600 text-white text-xs
+      px-2 py-0.5 rounded-full
+    ">
+      {worker_requests.length}
+    </span> )}
+            </Link>
+          ):(
+            <Link to="/user-req">Requests</Link>
+          )
+        }
+        {/* <Link to="/worker-req">Requests</Link> */}
       </div>
       
       {/* <Link to="w-filter">Workers Filter</Link> */}
