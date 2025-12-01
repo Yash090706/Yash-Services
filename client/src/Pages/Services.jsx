@@ -15,6 +15,10 @@ const Services = () => {
   // const worker=location.state
   const [formdata, setformdata] = useState({
     fullname: userinfo?.others?.fullname || workerinfo?.fullname || "",
+    worker_name:sel_worker.worker.fullname,
+    role:sel_worker.worker.role,
+    v_charges:sel_worker.worker.v_charges,
+    experience:sel_worker.worker.experience,
     mobile: userinfo?.others?.mobile || workerinfo?.mobile || "",
     address: "",
     date: "",

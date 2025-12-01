@@ -23,7 +23,7 @@ const search=async(req,res,next)=>{
     }
 }
 const hire_request=async(req,res,next)=>{
-    const{fullname,mobile,date,address,message}=req.body
+    const{fullname,mobile,date,address,message,worker_name,role,experience,v_charges}=req.body
      const uid=req.params.userid
  const wid=req.params.workerid
  try{
@@ -47,7 +47,7 @@ const hire_request=async(req,res,next)=>{
 
     const c_date=new Date(date)
     const hire_req=hire_model({
-        userid:uid,workerid:wid,fullname,mobile,address,message,date:c_date
+        userid:uid,workerid:wid,fullname,worker_name,role,v_charges,experience,mobile,address,message,date:c_date
     })
     await hire_req.save().then(()=>{
         res.status(200).json({
@@ -90,4 +90,50 @@ const view_hire_request=async (req,res,next)=>{
     })
 
 }
-module.exports={search,hire_request,verify_hire_token,view_hire_request}
+const verify_user_hire_token=(req,res,next)=>{
+    const token=req.cookies.user_token
+    if(!token){
+        return next(errorhandler(401,"Access Denied,Sign In Again."))
+    }
+    jwt.verify(token,process.env.JWT_SECRET_KEY,(err,user)=>{
+        if(err){
+            return next(errorhandler(401,"Token Not Valid."))
+
+        }
+        req.user=user.id
+        next();
+
+    })
+}
+const view_sended_request=async(req,res,next)=>{
+    const {uid}=req.params
+    if(!req.user.id==uid){
+        return next(errorhandler(402,"Bad Requests."))
+    }
+
+    const sended_req=await hire_model.find({userid:uid})
+    res.status(200).json({
+        status:1,
+        sended_req_info:sended_req
+    })
+
+}
+
+const cancel_request=async(req,res,next)=>{
+    const{hid}=req.body;
+    try{
+    const can_req=await hire_model.deleteOne({_id:hid})
+    res.status(200).json({
+        status:1,
+        msg:"Request Cancelled SuccessFully.",
+        can_req
+    })
+    }
+    catch(err){
+        return next(errorhandler(500,err.message))
+    }
+
+
+
+}
+module.exports={search,hire_request,verify_hire_token,view_hire_request,verify_user_hire_token,view_sended_request,cancel_request}

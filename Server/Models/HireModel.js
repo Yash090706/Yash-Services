@@ -16,6 +16,22 @@ const hire_schema = mongoose.Schema({
     type: String,
     required: true,
   },
+  worker_name:{
+    type:String,
+    required:true
+  },
+  role:{
+    type:String,
+    required:true
+  },
+  v_charges:{
+    type:Number,
+    required:true,
+  },
+  experience:{
+    type:Number,
+    required:true
+  },
   mobile: {
     type: String,
     required: true,
