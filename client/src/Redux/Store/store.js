@@ -5,12 +5,13 @@ import {persistReducer,persistStore} from "redux-persist"
 import userreducer from "../UserSlice"
 import sel_workerred from"../SelectedWorkerSlice"
 import worker_reqReducer from "../WorkerRequestSlice"
-
+import user_req_reducer from "../UserHireRequestSlice"
 const rootreducer=combineReducers({
     worker:workerreducer,
     user:userreducer,
     selected_worker:sel_workerred,
-    worker_req_slice:worker_reqReducer
+    worker_req_slice:worker_reqReducer,
+    user_hire_request:user_req_reducer
 
 })
 const persistconfig={

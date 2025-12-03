@@ -11,6 +11,8 @@ axios.interceptors.response.use(
         const status=error.response?.status;
         if(status === 401 || status===402 || status===403){
             toast.error("Token is Expired ! Sign in Again.")
+
+            const state=store.getState();
             // store.dispatch(WSignOut());
             if(state.user.userinfo){
                 store.dispatch(USignOut())

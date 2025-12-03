@@ -4,6 +4,7 @@ import userimg from "../assets/userimg.jpg"
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 import { Selected_Worker_Success } from '../Redux/SelectedWorkerSlice'
+import { toast, ToastContainer } from 'react-toastify'
 const WorkerPage = () => {
     const location=useLocation();
     const worker=location.state
@@ -23,7 +24,7 @@ const WorkerPage = () => {
     const dispatch=useDispatch();
     const proceed_to_hire=(e)=>{
       e.preventDefault();
-      if(userinfo?.others?._id || workerinfo?._id){
+      if(userinfo?.others?._id){
         navigate("/services");
         console.log(worker)
         dispatch(Selected_Worker_Success({worker}))
@@ -31,8 +32,17 @@ const WorkerPage = () => {
         
         // console.log(worker)
       }
+      else if(workerinfo?._id){
+        toast.warning("You need to Sign in as a Customer.")
+        setTimeout(()=>{
+          navigate("/signin")
+        },2000)
+        
+
+      }
       else{
         navigate("/signin")
+        
       }
 
     }
@@ -53,6 +63,7 @@ const WorkerPage = () => {
 // },[workerinfo,worker])
   return (
     <>
+    <ToastContainer/>
     <Link to="/">
     <button className='ml-20 p-3 bg-blue-300 mt-5 rounded-3xl font-semibold hover:cursor-pointer hover:opacity-70'> 👈Back</button>
     </Link>

@@ -1,16 +1,17 @@
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { Navigate, Outlet } from 'react-router-dom'
-const ServicePrivateRoute = () => {
+
+const UserRequestPrivateRoute = () => {
     const{userinfo}=useSelector((state)=>state.user)
-    // const{workerinfo}=useSelector((state)=>state.worker)
-    
   return (
     <div>
-        {userinfo ? <Outlet/>:<Navigate to="/signin"></Navigate>}
+        {
+            userinfo? <Outlet/> :<Navigate to="/signin"/>
+        }
       
     </div>
   )
 }
 
-export default ServicePrivateRoute
+export default UserRequestPrivateRoute
