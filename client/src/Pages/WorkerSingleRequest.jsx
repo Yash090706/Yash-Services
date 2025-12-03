@@ -17,16 +17,17 @@ const WorkerSingleRequest = () => {
   }
   return (
     <div>
-      <div className="bg-green-200 w-[800px] h-[600px] mx-auto mt-10 rounded-3xl p-10">
+      <div className="bg-green-200 w-[800px] h-[620px] mx-auto mt-7 rounded-3xl p-10">
         <Link to="/worker-req">
          <button className=' p-3  w-[100px] bg-blue-300  rounded-3xl font-semibold hover:cursor-pointer hover:opacity-70 text-xl font-mono'>👈Back</button>
          </Link>
         <div className="font-mono w-[500px] mx-auto h-[500px] text-xl">
           <h1 className="ml-10 mt-10">User Id:{request.userid}</h1>
           <h1 className="ml-10 mt-10">User Name:{request.fullname}</h1>
-          <h1 className="ml-10 mt-10">Worker Id:{request.workerid}</h1>
+          <h1 className="ml-10 mt-10">User Address:{request.address}</h1>
           <h1 className="ml-10 mt-10">User Mobile:{request.mobile}</h1>
           <h1 className="ml-10 mt-10">Message:{request.message}</h1>
+          <h1 className="ml-10 mt-10">Hire Date:{request.date}</h1>
           <div className="ml-10 mt-10 flex flex-row gap-8">
             <button className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75">
               Accept

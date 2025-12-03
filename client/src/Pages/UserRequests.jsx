@@ -96,7 +96,7 @@ const UserRequests = () => {
         {sended_req.length > 0 ? (
           sended_req.map((info, index) => (
             <div
-              className="bg-green-300 w-[1000px] mx-auto p-6 rounded-2xl flex flex-row gap-3 font-mono text-xl"
+              className="bg-green-300 w-[1100px] mx-auto p-6 rounded-2xl flex flex-row gap-3 font-mono text-xl"
               id={index}
             >
               <div className="flex flex-row gap-30 justify-between mx-auto">
@@ -104,16 +104,19 @@ const UserRequests = () => {
                 <h1>{info.worker_name}</h1>
                 <h1>{info.date}</h1>
               </div>
+              <h1 className="ml-7">
+                Status - <span className="text-red-600"> Not Accepted </span>
+              </h1>
               <Link to={`/user-req/${info._id}`}>
                 <button
-                  className="bg-blue-400 p-3 rounded-4xl text-white hover:cursor-pointer hover:opacity-70"
+                  className="bg-blue-400 p-3 w-[150px] rounded-4xl text-white hover:cursor-pointer hover:opacity-70"
                   onClick={() => user_req_view_more(info._userid)}
                 >
                   View More
                 </button>
               </Link>
               <button
-                className="bg-red-500 p-3 rounded-4xl text-white hover:cursor-pointer hover:opacity-70"
+                className="bg-red-500 p-3 w-[100px] rounded-4xl text-white hover:cursor-pointer hover:opacity-70"
                 onClick={() => cancel_req(info._id)}
               >
                 Cancel
