@@ -9,12 +9,12 @@ import "./axiosSetup";
 
 createRoot(document.getElementById('root')).render(
   
-  <StrictMode>
+  // <StrictMode>
     <Provider store={store}>
   <PersistGate persistor={persistor} loading={null}>
     <App />
   </PersistGate>
   </Provider>
   
-  </StrictMode>,
+  // </StrictMode>,
 )

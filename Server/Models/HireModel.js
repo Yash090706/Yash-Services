@@ -49,6 +49,10 @@ const hire_schema = mongoose.Schema({
     type: Date,
     required: true,
   },
+  status:{
+    type:String,
+    default:"Pending"
+  }
 });
 
 const hire_model=mongoose.model("Hiremodel",hire_schema);

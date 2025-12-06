@@ -10,12 +10,14 @@ import {
   clearSingleHireRequest,
   SetHireRequests,
 } from "../Redux/UserHireRequestSlice";
+import { toast, ToastContainer } from "react-toastify";
 
 const UserRequests = () => {
   const { userinfo } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const { user_hire_request } = useSelector((state) => state.user_hire_request);
   console.log(user_hire_request);
+  const [notifications, setnnotifications] = useState([]);
 
   const navigate = useNavigate();
   const [sended_req, setsended_req] = useState([]);
@@ -64,27 +66,55 @@ const UserRequests = () => {
   };
 
   useEffect(() => {
-    if (!userinfo) {
-      navigate("/signin");
-    }
-    // const fetch_sended_req = async () => {
-    // try {
-    // await axios
-    // .get(
-    // `http://localhost:8000/yash-services/services/view-sended-req/${userinfo.others._id}`
-    // )
-    // .then((res) => {
-    // console.log(res.data);
-    // setsended_req(res.data.sended_req_info);
-    // dispatch(SetHireRequests(res.data.sended_req_info))
-    //
-    // });
-    // } catch (err) {
-    // console.log(err);
-    // }
-    // };
+    if (!userinfo || !userinfo.others?._id) return;
+    console.log("socket id", userinfo.others._id);
+    const ws = new WebSocket(
+      `ws://localhost:8000?userId=${userinfo.others._id}`
+    );
+
+    const fetch_pen_not = async () => {
+      const res = await axios.get(
+        `http://localhost:8000/yash-services/services/notifications/${userinfo.others._id}`
+      );
+      console.log(res.data);
+      // console.log(res.data.notificationsinfo[0].message)
+      const notis = res.data.notificationsinfo;
+      setnnotifications(notis);
+      if (notis.length >= 1) {
+        notis.forEach((n) => {
+          console.log(n.message);
+
+          toast.info(
+            `Notification: ${n.message} By ${n.wname} with role ${n.role}`,{ position: "top-center" }
+          );
+        });
+      }
+    };
+
+    ws.onopen = () => {
+      console.log("Websocket of Customer Connected.");
+      fetch_pen_not();
+      // console.log(res.data.notificationsinfo.message)
+    };
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("WebSocket message received:", data);
+      if (data.message === "Accepted") {
+        toast.success("Request Accepted By Worker.");
+        fetch_sended_req();
+      }
+    };
+    ws.onerror = (err) => console.log("WebSocket error:", err);
+    ws.onclose = () => {
+      console.log("Websocket of Customer Disconnected.");
+    };
 
     fetch_sended_req();
+
+    return () => {
+      ws.close();
+    };
 
     // cancel_req();
   }, []);
@@ -92,6 +122,7 @@ const UserRequests = () => {
   return (
     <div className="p-10">
       <div className="bg-green-200 w-[1200px] mx-auto rounded-3xl flex flex-col gap-4 p-4">
+        <ToastContainer />
         <h1 className="font-mono text-3xl text-center p-4">Your Requests</h1>
         {sended_req.length > 0 ? (
           sended_req.map((info, index) => (
@@ -105,7 +136,7 @@ const UserRequests = () => {
                 <h1>{info.date}</h1>
               </div>
               <h1 className="ml-7">
-                Status - <span className="text-red-600"> Not Accepted </span>
+                Status - <span className="text-red-600"> {info.status} </span>
               </h1>
               <Link to={`/user-req/${info._id}`}>
                 <button

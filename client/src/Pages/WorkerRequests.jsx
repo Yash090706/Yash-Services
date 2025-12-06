@@ -8,7 +8,7 @@ const WorkerRequests = () => {
   const { workerinfo } = useSelector((state) => state.worker);
   const [hireinfo, sethireinfo] = useState([]);
   const navigate = useNavigate();
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   useEffect(() => {
     if (!workerinfo) {
       navigate("/signin");
@@ -48,9 +48,9 @@ const WorkerRequests = () => {
               </h1>
               <h1 className="font-mono text-2xl ">{item.date}</h1>
               <Link to={`/worker-req/${item._id}`}>
-              <button className="bg-blue-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75">
-                View Request
-              </button>
+                <button className="bg-blue-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75">
+                  View Request
+                </button>
               </Link>
             </div>
           ))
@@ -66,9 +66,8 @@ const WorkerRequests = () => {
         {/* <h1 className="font-mono text-2xl ">{hireinfo.date}</h1> */}
         {/* <button className="bg-blue-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75">View Request</button> */}
         {/* </div> */}
-        <Outlet/>
+        <Outlet />
       </div>
-      
     </div>
   );
 };
