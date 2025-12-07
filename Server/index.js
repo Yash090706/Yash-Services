@@ -5,7 +5,7 @@ const cors = require("cors");
 const { worker_route } = require("./Routes/Worker_Routes");
 const { WebSocketServer } = require("ws");
 const http = require("http");
-const clients=require("./web_sockets_clients");
+// const clients=require("./web_sockets_clients");
 
 let app = express();
 require("dotenv").config();
@@ -55,29 +55,74 @@ mongoose
 // Web Socket
 const wss = new WebSocketServer({ server });
 
-// const clients = {};
+const clients={};
+// in clients we will store socket connection of specific userid 
+wss.on("connection",(ws,req)=>{
+  ws.on("error",(err)=>console.log("Conection Error.",err))
+  const url=new URL(req.url,"http://localhost")
+  const userId=url.searchParams.get("userId")
+  const roomId=url.searchParams.get("roomId")
 
-wss.on("connection", (ws, req) => {
-   ws.on("error", (err) => console.log("WS client error:", err));
-  const userId = new URL(req.url, "http://localhost").searchParams.get(
-    "userId"
-  );
-
-  if (!userId) {
-    return ws.close();
+  if(!userId){
+    console.log("User Id Not Found So Closing Web Socket Connection")
+    return ws.close()
   }
+  ws.userId=userId
+  ws.roomId=roomId
 
-  clients[userId]=ws;
-  console.log(`WebSocket connected: ${userId}`);
-  ws.on("close",()=>{
-    delete clients[userId];
-    console.log(`WebSocket disconnected: ${userId}`);
+  clients[userId]=ws 
+  // store socket connection to respective userid like userid123=wsconnection to find user later
+  console.log("WS Connected | user:", userId, "| room:", roomId);
+  ws.on("message",(msg)=>{
+    const data=JSON.parse(msg)
+
+    if(ws.roomId){
+      wss.clients.forEach((client)=>{
+        if(client.roomId === ws.roomId && client.readyState ===1){
+          client.send(JSON.stringify(data))
+        }
+      })
+    }
   })
-});
+  ws.on("close",()=>{
+    delete clients[userId]
+       console.log("WS Disconnected:", userId);
+  })
 
 
+})
 server.listen(process.env.PORT_NUMBER, () => {
   console.log("Server is Running on Port an Socket " + process.env.PORT_NUMBER);
 });
 
 module.exports=clients;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

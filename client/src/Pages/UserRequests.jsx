@@ -85,7 +85,8 @@ const UserRequests = () => {
           console.log(n.message);
 
           toast.info(
-            `Notification: ${n.message} By ${n.wname} with role ${n.role}`,{ position: "top-center" }
+            `Notification: ${n.message} By ${n.wname} with role ${n.role}`,
+            { position: "top-center" }
           );
         });
       }
@@ -100,7 +101,7 @@ const UserRequests = () => {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log("WebSocket message received:", data);
-      if (data.message === "Accepted") {
+      if (data.notification.message === "Request Accepted") {
         toast.success("Request Accepted By Worker.");
         fetch_sended_req();
       }
@@ -151,6 +152,16 @@ const UserRequests = () => {
                 onClick={() => cancel_req(info._id)}
               >
                 Cancel
+              </button>
+              <button
+                className="bg-green-500 p-3 w-[100px] rounded-4xl text-white hover:cursor-pointer hover:opacity-70"
+                hidden={info.status==="Pending"}
+                onClick={()=>{
+                  navigate(`/chat/${info._id}`);
+                  console.log(info._id)
+                }}
+              >
+                Chat
               </button>
             </div>
           ))

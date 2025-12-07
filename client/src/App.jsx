@@ -20,6 +20,7 @@ import UserSingleRequest from "./Pages/UserSingleRequest";
 import { WSignOut } from "./Redux/WorkerSlice";
 import WorkerRequestPrivateRoute from "./Components/WorkerRequestPrivateRoute";
 import UserRequestPrivateRoute from "./Components/UserRequestPrivateRoute";
+import Chat from "./Pages/Chat";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
@@ -52,6 +53,7 @@ const App = () => {
           <Route element={<ServicePrivateRoute />}>
             <Route path="/services" element={<Services />}></Route>
           </Route>
+          <Route path="/chat/:requestId" element={<Chat/>}></Route>
         </Routes>
       </BrowserRouter>
     </div>
