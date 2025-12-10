@@ -6,7 +6,7 @@ const { worker_route } = require("./Routes/Worker_Routes");
 const { WebSocketServer } = require("ws");
 const http = require("http");
 // const clients=require("./web_sockets_clients");
-
+const {messageModel}=require("./Models/MessageModel")
 let app = express();
 require("dotenv").config();
 const server = http.createServer(app);
@@ -24,6 +24,7 @@ app.use(
 // Cookies Parser
 const cookie_parser = require("cookie-parser");
 const { service_routes } = require("./Routes/ServiceRoutes");
+const errorhandler = require("./Middleware/custom_error");
 app.use(cookie_parser());
 // Static Routes
 // Customer
@@ -57,7 +58,7 @@ const wss = new WebSocketServer({ server });
 
 const clients={};
 // in clients we will store socket connection of specific userid 
-wss.on("connection",(ws,req)=>{
+wss.on("connection",async(ws,req)=>{
   ws.on("error",(err)=>console.log("Conection Error.",err))
   const url=new URL(req.url,"http://localhost")
   const userId=url.searchParams.get("userId")
@@ -73,17 +74,50 @@ wss.on("connection",(ws,req)=>{
   clients[userId]=ws 
   // store socket connection to respective userid like userid123=wsconnection to find user later
   console.log("WS Connected | user:", userId, "| room:", roomId);
-  ws.on("message",(msg)=>{
-    const data=JSON.parse(msg)
+  // Deliver Pending messages
 
-    if(ws.roomId){
-      wss.clients.forEach((client)=>{
-        if(client.roomId === ws.roomId && client.readyState ===1){
-          client.send(JSON.stringify(data))
-        }
-      })
+  const pendingMessages=await messageModel.find({receiverId:userId,delivered:false})
+
+  if (pendingMessages.length > 0) {
+  for (const msg of pendingMessages) {
+    ws.send(JSON.stringify(msg));
+  }
+  await messageModel.updateMany(
+    { receiverId: userId, delivered: false },
+    { $set: { delivered: true } }
+  );
+  console.log(`Delivered ${pendingMessages.length} pending messages to ${userId}`);
+}
+  ws.on("message", async (msg) => {
+    try {
+      const data = JSON.parse(msg);
+      console.log("Server received message:", data);
+
+      const { senderId, receiverId, roomId, text } = data;
+
+      // Save to DB
+      const newMsg = await messageModel.create({
+        roomId,
+        senderId,
+        receiverId,
+        text,
+        delivered: false,
+      });
+
+      // Send to receiver if online
+      const recvWs = clients[receiverId];
+      if (recvWs && recvWs.readyState === WebSocket.OPEN) {
+        recvWs.send(JSON.stringify(newMsg));
+        await messageModel.findByIdAndUpdate(newMsg._id, { delivered: true });
+      }
+
+      // Optionally send to sender as confirmation
+      ws.send(JSON.stringify(newMsg));
+    } catch (err) {
+      console.error("Error handling message:", err);
     }
-  })
+  });
+  
   ws.on("close",()=>{
     delete clients[userId]
        console.log("WS Disconnected:", userId);
@@ -94,7 +128,6 @@ wss.on("connection",(ws,req)=>{
 server.listen(process.env.PORT_NUMBER, () => {
   console.log("Server is Running on Port an Socket " + process.env.PORT_NUMBER);
 });
-
 module.exports=clients;
 
 

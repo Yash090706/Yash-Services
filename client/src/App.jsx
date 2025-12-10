@@ -53,7 +53,7 @@ const App = () => {
           <Route element={<ServicePrivateRoute />}>
             <Route path="/services" element={<Services />}></Route>
           </Route>
-          <Route path="/chat/:requestId" element={<Chat/>}></Route>
+          <Route path="/chat/:requestId/:senderId/:receiverId/:senderName" element={<Chat/>}></Route>
         </Routes>
       </BrowserRouter>
     </div>

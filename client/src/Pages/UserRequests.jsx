@@ -131,6 +131,7 @@ const UserRequests = () => {
               className="bg-green-300 w-[1100px] mx-auto p-6 rounded-2xl flex flex-row gap-3 font-mono text-xl"
               id={index}
             >
+              
               <div className="flex flex-row gap-30 justify-between mx-auto">
                 <h1>{info.fullname}</h1>
                 <h1>{info.worker_name}</h1>
@@ -153,16 +154,19 @@ const UserRequests = () => {
               >
                 Cancel
               </button>
+              <Link to={`/chat/${info._id}/${info.userid}/${info.workerid}/${info.worker_name}`}>
               <button
                 className="bg-green-500 p-3 w-[100px] rounded-4xl text-white hover:cursor-pointer hover:opacity-70"
                 hidden={info.status==="Pending"}
                 onClick={()=>{
-                  navigate(`/chat/${info._id}`);
-                  console.log(info._id)
+                  // navigate(`/chat/${info._id}/${info.workerid}/${info.userid}`);
+                  // console.log(info._id,info._userid,info._worker_id)
+                  console.log(info)
                 }}
               >
                 Chat
               </button>
+              </Link>
             </div>
           ))
         ) : (

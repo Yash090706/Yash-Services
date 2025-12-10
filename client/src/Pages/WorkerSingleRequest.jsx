@@ -95,10 +95,11 @@ const WorkerSingleRequest = () => {
             >
               Reject
             </button>
+            <Link to={`/chat/${request._id}/${request.workerid}/${request.userid}/${request.fullname}`}>
             <button
               className="bg-blue-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={()=>{
-                navigate(`/chat/${request._id}`)
+                // navigate(`/chat/${request._id}/${request.worker_id}/${request.userid}`);
                 console.log(request._id)
               }}
               hidden={request.status=="Pending"}
@@ -106,6 +107,7 @@ const WorkerSingleRequest = () => {
             >
               Chat
             </button>
+            </Link>
           </div>
         </div>
       </div>

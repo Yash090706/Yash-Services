@@ -1,94 +1,139 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import { useRef } from "react";
+import userimg from "../assets/userimg.jpg";
 const Chat = () => {
-  //   this would be room id which would be common for both
-  const { requestId } = useParams();
-  const { userinfo } = useSelector((state) => state.user);
-  const { workerinfo } = useSelector((state) => state.worker);
-  const userId = userinfo?.others?._id || workerinfo?._id;
-  // To store websocket connection so that later can be used.
+  const { requestId, senderId, receiverId, senderName } = useParams();
+  console.log("Chat params:", {
+    requestId,
+    senderId,
+    receiverId,
+    pathname: window.location.pathname,
+  });
+
   const [ws, setWS] = useState(null);
-  // To store messages so that ca be displayed on ui.
   const [messages, setMessages] = useState([]);
-  // To store what you are typing.
   const [msg, setMsg] = useState("");
+  const messageref = useRef(null);
+
+  const scrollToBottom = () => {
+    messageref.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
-    if (!userId) {
+    if (!senderId || !receiverId) {
+      console.error(
+        "Chat: missing senderId or receiverId — cannot open socket"
+      );
       return;
     }
-    console.log(
-      `Chat Starting with Room Id as ${requestId} and User Id as ${userId}`
-    );
+    const fetch_history = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8000/yash-services/services/messages/history?roomId=${requestId}`
+        );
+        setMessages(res.data.messages);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetch_history();
+
     const socket = new WebSocket(
-      `ws://localhost:8000/chat?userId=${userId}&roomId=${requestId}`
+      `ws://localhost:8000/chat?userId=${senderId}&roomId=${requestId}`
     );
     setWS(socket);
 
-    // If any message comes
-    socket.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      setMessages((prev) => [...prev, data]);
-    };
     socket.onopen = () => {
-      console.log("Chat Connected");
+      console.log("WebSocket connected");
+    };
+    socket.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        setMessages((prev) => [...prev, data]);
+      } catch (err) {
+        console.error("Error parsing WS message", err);
+      }
     };
     socket.onclose = () => {
-      console.log("Chat Disconnected");
+      console.log("WebSocket disconnected");
     };
-    return () => socket.close();
-  }, [userId, requestId]);
+    socket.onerror = (err) => {
+      console.error("WebSocket error", err);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [requestId, senderId, receiverId]);
+
   const sendMsg = () => {
-    if (!msg) {
-      return;
-    }
-    ws.send(JSON.stringify({ sender: userId, message: msg }));
+    if (!msg.trim() || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+    const payload = {
+      senderId,
+      receiverId,
+      roomId: requestId,
+      text: msg.trim(),
+    };
+    console.log("Sending message:", payload);
+
+    ws.send(JSON.stringify(payload));
     setMsg("");
   };
-  // const userId = userinfo?.others?._id || workerinfo?._id;
+
+  if (!senderId || !receiverId) {
+    return <p>Error: invalid chat URL — missing participants.</p>;
+  }
+
   return (
     <div className="p-6">
-      <h1 className="font-mono text-3xl text-center mb-4">Chat</h1>
-      <div className="bg-gray-200 h-[400px] p-4 overflow-y-scroll rounded-xl">
-      
-      
-      
-      {messages.map((m, index) => (
-  <div
-    key={index}
-    className={`p-2 m-2 rounded-lg max-w-[60%] ${
-      m.sender === userId ? "bg-blue-300 ml-auto" : "bg-green-300 mr-auto"
-    }`}
-  >
-    {m.message}
-  </div>
-))}
-
-      
-      
-      
-      
-      
-      
-      
-      
+      <h1 className="font-mono text-3xl text-center mb-2">Chat</h1>
+      <div className="bg-gray-200 w-[900px] mx-auto p-3 rounded-sm border border-gray-300 text-2xl font-mono flex flex-row gap-4">
+        <img src={userimg} className="w-[50px] h-[50px] rounded-3xl object-cover"></img>
+        <h1 className="ml-10 text-center">{senderName}</h1>
       </div>
-      <div className="flex mt-4 gap-2">
+      <div className="bg-gray-200 h-[450px] w-[900px] p-4 overflow-y-scroll mx-auto border border-gray-300">
+        {/* <div className="bg-red-400 w-full h-[20px] static"></div> */}
+        {messages.map((m, idx) => (
+          <div
+            key={idx}
+            
+            className={`p-2 m-2 rounded-lg max-w-[60%] ${
+              m.senderId === senderId
+                ? "bg-blue-300 ml-auto"
+                : "bg-green-300 mr-auto"
+            }`}
+            
+          >
+            <p className={`text-xs text-gray-600 mb-1 ${
+      m.senderId === senderId ? "text-right" : "text-left"
+    }`}>
+      {m.senderId === senderId ? "You" : senderName}
+    </p>
+
+            {m.text}
+          </div>
+        ))}
+        <div ref={messageref}></div>
+      </div>
+      <div className="flex mt-4 gap-2 ml-100">
         <input
-          className="flex-1 border p-2 rounded-xl"
-          placeholder="Type message..."
+          className="border p-2 rounded-xl w-[500px]"
+          placeholder="Type a message..."
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
         />
-          <button
+        <button
           className="bg-blue-500 text-white p-3 rounded-xl"
           onClick={sendMsg}
         >
           Send
         </button>
-
       </div>
     </div>
   );

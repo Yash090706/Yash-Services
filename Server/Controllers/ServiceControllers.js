@@ -4,7 +4,8 @@ const { user_model } = require("../Models/UserModel");
 const { worker_model } = require("../Models/WorkerModel");
 const  clients = require("../index");
 const jwt = require("jsonwebtoken");
-const {notificationModel}=require("../Models/NotificationsModel")
+const {notificationModel}=require("../Models/NotificationsModel");
+const { messageModel } = require("../Models/MessageModel");
 const search = async (req, res, next) => {
   const query = req.query.role || req.query.fullname || "";
   try {
@@ -234,6 +235,27 @@ const worker_cancel_request=async(req,res,next)=>{
     return next(errorhandler(500,err.message))
   }
 }
+const old_messages=async(req,res,next)=>{
+  try{
+  const {roomId}=req.query;
+
+  if(!roomId){
+    return next(errorhandler(404,"Room Id not Found"))
+  }
+  const messages=await messageModel.find({roomId}).sort({createdAt:1})
+// Oldest to newest
+res.status(200).json({
+  status:1,
+  messages
+})
+
+
+  }
+  catch(err){
+    next(errorhandler(500,err.message))
+  }
+
+}
 module.exports = {
   search,
   hire_request,
@@ -244,5 +266,6 @@ module.exports = {
   cancel_request,
   accept_request,
   fetch_notifications,
-  worker_cancel_request
+  worker_cancel_request,
+  old_messages
 };
