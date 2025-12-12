@@ -43,6 +43,10 @@ const worker_schema = mongoose.Schema({
   v_charges:{
     type:Number,
     required:true
+  },
+  w_address:{
+    type:String,
+    required:true
   }
 
 });

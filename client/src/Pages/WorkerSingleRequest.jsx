@@ -7,10 +7,11 @@ const WorkerSingleRequest = () => {
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
   const { reqid } = useParams();
   const { workerinfo } = useSelector((state) => state.worker);
-  const navigate = useNavigate();
+  const { j_info } = useSelector((state) => state.journey);
+  // const navigate = useNavigate();
 
   const request = worker_requests.find((r) => r._id === reqid);
-
+  console.log(j_info);
   if (!request) {
     return (
       <div>
@@ -66,6 +67,30 @@ const WorkerSingleRequest = () => {
       console.log(err);
     }
   };
+  const journey_info_sub = async () => {
+    const now = new Date();
+    const dt = now.toLocaleString();
+    const jinfo = {
+      uid: request.userid,
+      wid: request.workerid,
+      j_hid: request._id,
+      u_add: request.address,
+      w_add: workerinfo.w_address,
+      status: "Started",
+      date_time: dt,
+    };
+    try {
+      await axios
+        .post("http://localhost:8000/yash-services/services/journey", jinfo)
+        .then((res) => {
+          // toast.success("Journey Started.");
+          console.log(res.data);
+        });
+    } catch (err) {
+      console.log(err);
+      toast.error("Unable To Start Journey");
+    }
+  };
   return (
     <div>
       <div className="bg-green-200 w-[800px] h-[620px] mx-auto mt-7 rounded-3xl p-10">
@@ -86,27 +111,53 @@ const WorkerSingleRequest = () => {
             <button
               className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={accept_req}
+              hidden={request.status === "Accepted"}
             >
               Accept
             </button>
             <button
               className="bg-red-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={cancel_req}
+              hidden={request.status === "Accepted"}
             >
               Reject
             </button>
-            <Link to={`/chat/${request._id}/${request.workerid}/${request.userid}/${request.fullname}`}>
-            <button
-              className="bg-blue-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-              onClick={()=>{
-                // navigate(`/chat/${request._id}/${request.worker_id}/${request.userid}`);
-                console.log(request._id)
-              }}
-              hidden={request.status=="Pending"}
-
+            <Link
+              to={`/chat/${request._id}/${request.workerid}/${request.userid}/${request.fullname}`}
             >
-              Chat
-            </button>
+              <button
+                className="bg-blue-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+                onClick={() => {
+                  // navigate(`/chat/${request._id}/${request.worker_id}/${request.userid}`);
+                  console.log(request._id);
+                }}
+                hidden={request.status == "Pending"}
+              >
+                Chat
+              </button>
+            </Link>
+            <Link to={`/google-maps/${request._id}`}>
+              <button
+                onClick={journey_info_sub}
+                hidden={
+                  request.status == "Pending"
+                  // j_info.address_info.status == "Started"
+                }
+                className="bg-green-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+              >
+                Start Journey
+              </button>
+            </Link>
+            <Link to={`/google-maps/${request._id}`}>
+              <button
+                // onClick={journey_info_sub}
+                hidden={
+                  request.status == "Pending"
+                }
+                className="bg-green-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+              >
+                View Address
+              </button>
             </Link>
           </div>
         </div>

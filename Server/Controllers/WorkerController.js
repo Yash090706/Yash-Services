@@ -14,6 +14,7 @@ const w_signup = async (req, res, next) => {
     experience,
     role,
     v_charges,
+    w_address
   } = req.body;
   const w_hashed_password = bcryptjs.hashSync(password, 10);
   try {
@@ -27,6 +28,7 @@ const w_signup = async (req, res, next) => {
       experience,
       role,
       v_charges,
+      w_address
     });
     await w_info.save().then(() => {
       res.status(200).json({

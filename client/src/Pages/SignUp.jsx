@@ -16,6 +16,7 @@ const SignUp = () => {
     role: "",
     experience: "",
     v_charges: "",
+    w_address:""
   });
   const handleChange = (e) => {
     setcustdata({ ...custdata, [e.target.id]: e.target.value });
@@ -198,6 +199,16 @@ const SignUp = () => {
               custdata.UserType === "Worker" ? "block" : "hidden"
             }`}
           ></input>
+           <input
+   type="text"
+   placeholder=" Address"
+   onChange={handleWorker}
+   id="w_address"
+   value={wdata.w_address}
+   className={`w-full border rounded-lg p-3 text-center bg-white shadow-[0_6px_10px_rgba(0,0,0,0.15)] transition-all duration-300 ${
+     custdata.UserType === "Worker" ? "block" : "hidden"
+   }`}
+ ></input>
 
           <button className="bg-green-300 p-3 rounded-lg border font-semibold hover:cursor-pointer hover:opacity-75">
             SIGNUP
