@@ -113,13 +113,45 @@ wss.on("connection",async(ws,req)=>{
 
       // Optionally send to sender as confirmation
       ws.send(JSON.stringify(newMsg));
-    } catch (err) {
+      if (data.type === "JOIN") {
+      ws.rid = data.rid;
+
+      if (!rooms.has(data.rid)) {
+        rooms.set(data.rid, new Set());
+      }
+      rooms.get(data.rid).add(ws);
+    }
+
+    if(data.type=="LOCATION"){
+      const roomsClients=rooms.get(data.rid)
+       if (!roomsClients) return;
+
+       roomsClients.foreach((client)=>{
+        if (client.readyState === ws.OPEN) {
+          client.send(
+            JSON.stringify({
+              type: "LOCATION",
+              lat: data.lat,
+              lon: data.lon,
+            }))}
+
+          
+
+       })
+    }
+    }
+
+    catch (err) {
       console.error("Error handling message:", err);
     }
   });
   
   ws.on("close",()=>{
     delete clients[userId]
+    if (ws.rid && rooms.has(ws.rid)) {
+      rooms.get(ws.rid).delete(ws);
+    }
+
        console.log("WS Disconnected:", userId);
   })
 
@@ -128,7 +160,7 @@ wss.on("connection",async(ws,req)=>{
 server.listen(process.env.PORT_NUMBER, () => {
   console.log("Server is Running on Port an Socket " + process.env.PORT_NUMBER);
 });
-module.exports=clients;
+module.exports={clients,server};
 
 
 

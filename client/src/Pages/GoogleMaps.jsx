@@ -1,31 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Icon, divIcon, point } from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import axios from "axios";
-
 import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { JourneyStart } from "../Redux/JourneySlice";
+import L from "leaflet";
+
 const GoogleMaps = () => {
   const { rid } = useParams();
+  const dispatch = useDispatch();
 
-  const dispatch=useDispatch();
+  const wsRef = useRef(null);
+  const watchIdRef = useRef(null);
+  const timerRef = useRef(null);
 
-  // Coordinates
-  const [Ucoord, setUcoord] = useState(null); // User
-  const [Wcoord, setWcoord] = useState(null); // Worker
+  const [Ucoord, setUcoord] = useState(null);
+  const [Wcoord, setWcoord] = useState(null);
 
-  // Distance and estimated time
-  const [distanceKm, setDistanceKm] = useState(null);
-  const [timeMin, setTimeMin] = useState(null);
+  const [distanceKm, setDistanceKm] = useState(0);
+  const [remainingSec, setRemainingSec] = useState(0);
+  const [initialSec, setInitialSec] = useState(0);
 
-  // Addresses
-  const [address, setAddress] = useState(null);
+  const [journeyStatus, setJourneyStatus] = useState("IDLE"); // 👈 important
+  const [address, setAddress] = useState("");
 
-  // Icons
-  const customIcon = new Icon({
+  const workerIcon = new Icon({
     iconUrl: "https://cdn-icons-png.flaticon.com/128/4862/4862248.png",
     iconSize: [40, 40],
   });
@@ -37,119 +39,159 @@ const GoogleMaps = () => {
 
   const clusterFunction = (cluster) =>
     divIcon({
-      html: `<div style="display:flex;align-items:center;justify-content:center;width:50px;height:50px;background:#2e7d32;color:white;border-radius:70%;font-size:20px;font-style:italic">${cluster.getChildCount()}</div>`,
-      className: "cluster-icon",
+      html: `<div style="display:flex;align-items:center;justify-content:center;width:50px;height:50px;background:#2e7d32;color:white;border-radius:70%">${cluster.getChildCount()}</div>`,
       iconSize: point(50, 50, true),
     });
 
-  // Fetch user and worker coordinates
-  const fetchAddress = async () => {
-    try {
+  // ---------------- FETCH CUSTOMER ----------------
+  useEffect(() => {
+    const fetchCustomer = async () => {
       const res = await axios.get(
         `http://localhost:8000/yash-services/services/j-address/${rid}`
-      ).catch((err)=>{
-        console.log(err)
-      })
+      );
 
-      dispatch(JourneyStart(res.data))
+      dispatch(JourneyStart(res.data));
 
+      const { u_add } = res.data.address_info;
+      setAddress(u_add);
 
+      const geo = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${u_add}`
+      );
+      const data = await geo.json();
 
-      const { u_add, w_add } = res.data.address_info;
-      setAddress([u_add, w_add]);
+      setUcoord([+data[0].lat, +data[0].lon]);
+    };
 
-      const [uRes, wRes] = await Promise.all([
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${u_add}`),
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${w_add}`),
-      ]);
+    fetchCustomer();
+  }, [rid, dispatch]);
 
-      const [uadd, wadd] = await Promise.all([uRes.json(), wRes.json()]);
+  // ---------------- WEBSOCKET + LIVE LOCATION ----------------
+  useEffect(() => {
+    wsRef.current = new WebSocket("ws://localhost:8000");
 
-      const ulat = parseFloat(uadd[0].lat);
-      const ulon = parseFloat(uadd[0].lon);
-      const wlat = parseFloat(wadd[0].lat);
-      const wlon = parseFloat(wadd[0].lon);
+    wsRef.current.onopen = () => {
+      wsRef.current.send(JSON.stringify({ type: "WORKER_JOIN", rid }));
+    };
 
-      setUcoord([ulat, ulon]);
-      setWcoord([wlat, wlon]);
-    } catch (err) {
-      console.error(err);
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        const coords = [pos.coords.latitude, pos.coords.longitude];
+        setWcoord(coords);
+
+        wsRef.current?.send(
+          JSON.stringify({
+            type: "WORKER_LOCATION",
+            rid,
+            lat: coords[0],
+            lng: coords[1],
+          })
+        );
+      },
+      console.error,
+      { enableHighAccuracy: true }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      wsRef.current?.close();
+      clearInterval(timerRef.current);
+    };
+  }, [rid]);
+
+  // ---------------- DISTANCE CALC ----------------
+  useEffect(() => {
+    if (!Ucoord || !Wcoord) return;
+
+    const meters = L.latLng(Wcoord).distanceTo(L.latLng(Ucoord));
+    const km = meters / 1000;
+    const minutes = (km / 30) * 60;
+    const seconds = Math.floor(minutes * 60);
+
+    setDistanceKm(km);
+
+    if (journeyStatus === "IDLE") {
+      setRemainingSec(seconds);
+      setInitialSec(seconds);
     }
+  }, [Ucoord, Wcoord, journeyStatus]);
+
+  // ---------------- COUNTDOWN ----------------
+  useEffect(() => {
+    if (journeyStatus !== "RUNNING") return;
+
+    timerRef.current = setInterval(() => {
+      setRemainingSec((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          setJourneyStatus("ENDED");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [journeyStatus]);
+
+  // ---------------- BUTTON HANDLERS ----------------
+  const startJourney = () => setJourneyStatus("RUNNING");
+
+  const pauseJourney = () => {
+    clearInterval(timerRef.current);
+    setJourneyStatus("PAUSED");
   };
 
-  // Initial fetch
-  useEffect(() => {
-    fetchAddress();
-  }, [rid]);
+  const endJourney = () => {
+    clearInterval(timerRef.current);
+    setRemainingSec(0);
+    setJourneyStatus("ENDED");
+  };
 
-  // Poll for updates every 5 seconds (worker may move)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetchAddress();
-    }, 5000); // Adjust interval as needed
+  const min = Math.floor(remainingSec / 60);
+  const sec = remainingSec % 60;
 
-    return () => clearInterval(interval);
-  }, [rid]);
-
-  // Calculate distance and estimated time whenever coordinates change
-  useEffect(() => {
-    if (Ucoord && Wcoord) {
-      const meters = L.latLng(Wcoord).distanceTo(L.latLng(Ucoord));
-      const km = (meters / 1000).toFixed(2);
-      const minutes = ((km / 30) * 60).toFixed(2);
-
-      setDistanceKm(km);
-      setTimeMin(minutes);
-    }
-  }, [Ucoord, Wcoord]);
-
-  // Polyline positions
-  const linePositions = Ucoord && Wcoord ? [Ucoord, Wcoord] : null;
+  const linePositions = Ucoord && Wcoord ? [Wcoord, Ucoord] : null;
 
   return (
-    <div className="pl-15 pr-20">
-      {/* Distance Info */}
-      {distanceKm && timeMin && address && (
-        <div className="w-[400px] font-mono ml-auto bg-slate-200 text-green-800 border-2 rounded-lg text-center mr-5 mb-2 mt-2 p-2">
-          <p>
-            Distance From <strong>{address[0]}</strong> To <strong>{address[1]}</strong>: {distanceKm} km
-          </p>
-          <p>Estimated Time: {timeMin} minutes</p>
+    <div className="pl-10 pr-10">
+      {/* INFO PANEL */}
+      {Ucoord && Wcoord && (
+        <div className="bg-slate-200 p-3 rounded-lg mb-2 text-center font-mono">
+          <p><b>Customer:</b> {address}</p>
+          <p><b>Distance:</b> {distanceKm} km</p>
+          <p><b>Remaining Time:</b> {min}:{sec.toString().padStart(2, "0")}</p>
+
+          <div className="flex justify-center gap-3 mt-2">
+            <button onClick={startJourney} disabled={journeyStatus === "RUNNING"}
+              className="bg-green-500 px-3 py-1 rounded text-white">
+              Start
+            </button>
+
+            <button onClick={pauseJourney} disabled={journeyStatus !== "RUNNING"}
+              className="bg-yellow-500 px-3 py-1 rounded text-white">
+              Pause
+            </button>
+
+            <button onClick={endJourney}
+              className="bg-red-500 px-3 py-1 rounded text-white">
+              End
+            </button>
+          </div>
         </div>
       )}
 
       <MapContainer
-        center={Ucoord || [19.0566, 72.9108]}
-        zoom={10}
+        center={Wcoord || [19.0566, 72.9108]}
+        zoom={13}
         style={{ height: "80vh", width: "100%" }}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         <MarkerClusterGroup iconCreateFunction={clusterFunction}>
-          {/* User Marker */}
-          {Ucoord && (
-            <Marker position={Ucoord} icon={customerIcon}>
-              <Popup>User Location</Popup>
-            </Marker>
-          )}
-
-          {/* Worker Marker */}
-          {Wcoord && (
-            <Marker position={Wcoord} icon={customIcon}>
-              <Popup>Worker Location</Popup>
-            </Marker>
-          )}
-
-          {/* Polyline */}
-          {linePositions && (
-            <Polyline positions={linePositions} color="red" weight={4}>
-              <Popup>
-                Route From Worker To Customer <br />
-                Distance: {distanceKm} km <br />
-                Estimated Time: {timeMin} min
-              </Popup>
-            </Polyline>
-          )}
+          {Ucoord && <Marker position={Ucoord} icon={customerIcon} />}
+          {Wcoord && <Marker position={Wcoord} icon={workerIcon} />}
+          {linePositions && <Polyline positions={linePositions} color="red" />}
         </MarkerClusterGroup>
       </MapContainer>
     </div>
