@@ -1,6 +1,6 @@
 const express=require("express");
 const { verify_hire_token, view_hire_request, hire_request, verify_user_hire_token, view_sended_request, cancel_request, accept_request, fetch_notifications, worker_cancel_request, old_messages } = require("../Controllers/ServiceControllers");
-const { journey, get_journey_address } = require("../Controllers/JourneyControllers");
+const { journey, get_journey_address, sendEmail, sendOTpEmail, verify_otp, fetch_email } = require("../Controllers/JourneyControllers");
 
 const service_routes=express.Router();
 service_routes.post("/hire_request/:userid/:workerid",hire_request);
@@ -13,4 +13,7 @@ service_routes.post("/worker-cancel-req",worker_cancel_request);
 service_routes.get("/messages/history",old_messages);
 service_routes.post("/journey",journey),
 service_routes.get("/j-address/:rid",get_journey_address);
+service_routes.post("/email",sendOTpEmail);
+service_routes.post("/verify",verify_otp);
+service_routes.post("/fetch_email/:id",fetch_email)
 module.exports={service_routes}

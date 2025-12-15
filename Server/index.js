@@ -5,6 +5,7 @@ const cors = require("cors");
 const { worker_route } = require("./Routes/Worker_Routes");
 const { WebSocketServer } = require("ws");
 const http = require("http");
+const {Server}=require("socket.io")
 // const clients=require("./web_sockets_clients");
 const {messageModel}=require("./Models/MessageModel")
 let app = express();
@@ -112,33 +113,7 @@ wss.on("connection",async(ws,req)=>{
       }
 
       // Optionally send to sender as confirmation
-      ws.send(JSON.stringify(newMsg));
-      if (data.type === "JOIN") {
-      ws.rid = data.rid;
-
-      if (!rooms.has(data.rid)) {
-        rooms.set(data.rid, new Set());
-      }
-      rooms.get(data.rid).add(ws);
-    }
-
-    if(data.type=="LOCATION"){
-      const roomsClients=rooms.get(data.rid)
-       if (!roomsClients) return;
-
-       roomsClients.foreach((client)=>{
-        if (client.readyState === ws.OPEN) {
-          client.send(
-            JSON.stringify({
-              type: "LOCATION",
-              lat: data.lat,
-              lon: data.lon,
-            }))}
-
-          
-
-       })
-    }
+      ws.send(JSON.stringify(newMsg))
     }
 
     catch (err) {
@@ -157,6 +132,45 @@ wss.on("connection",async(ws,req)=>{
 
 
 })
+
+// Location Socket
+const io=new Server(server,{
+  cors:{
+    origin:"*"
+  }
+}) 
+
+io.on("connection",(socket)=>{
+  console.log("Client/Worker Connected with Socket Id - ",socket.id)
+
+  socket.on("JOIN",(data)=>{
+    const {rid}=data
+    socket.join(rid)
+    socket.rid=rid
+    console.log(`Socket ${socket.id} Joined Room ${rid}`);
+  })
+
+  socket.on("LOCATION",(data)=>{
+    const {rid,lat,lon}=data
+
+    io.to(rid).emit("LOCATION",{
+      lat,lon
+    })
+
+  })
+   socket.on("STATUS", (data) => {
+    const {rid,status}=data
+    io.to(rid).emit("STATUS",{
+      rid,status
+    });
+  });
+
+  socket.on("disconnect",()=>{
+    console.log(`Client/Worker Disconnected ${socket.id}`)
+  })
+
+})
+
 server.listen(process.env.PORT_NUMBER, () => {
   console.log("Server is Running on Port an Socket " + process.env.PORT_NUMBER);
 });

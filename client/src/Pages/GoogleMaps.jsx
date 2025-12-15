@@ -1,19 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer, Polyline } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Icon, divIcon, point } from "leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { JourneyStart } from "../Redux/JourneySlice";
 import L from "leaflet";
+import { io } from "socket.io-client";
 
 const GoogleMaps = () => {
   const { rid } = useParams();
   const dispatch = useDispatch();
 
-  const wsRef = useRef(null);
+  const { userinfo } = useSelector((state) => state.user);
+  const { workerinfo } = useSelector((state) => state.worker);
+
+  const socketRef = useRef(null);
   const watchIdRef = useRef(null);
   const timerRef = useRef(null);
 
@@ -21,11 +25,15 @@ const GoogleMaps = () => {
   const [Wcoord, setWcoord] = useState(null);
 
   const [distanceKm, setDistanceKm] = useState(0);
-  const [remainingSec, setRemainingSec] = useState(0);
   const [initialSec, setInitialSec] = useState(0);
+  const [remainingSec, setRemainingSec] = useState(0);
 
-  const [journeyStatus, setJourneyStatus] = useState("IDLE"); // 👈 important
+  const [journeyStatus, setJourneyStatus] = useState("IDLE");        // worker
+  const [remoteStatus, setRemoteStatus] = useState("IDLE");          // user
+
   const [address, setAddress] = useState("");
+
+  /* ---------------- ICONS ---------------- */
 
   const workerIcon = new Icon({
     iconUrl: "https://cdn-icons-png.flaticon.com/128/4862/4862248.png",
@@ -43,151 +51,158 @@ const GoogleMaps = () => {
       iconSize: point(50, 50, true),
     });
 
-  // ---------------- FETCH CUSTOMER ----------------
+  /* ---------------- FETCH CUSTOMER ---------------- */
+
   useEffect(() => {
-    const fetchCustomer = async () => {
+    (async () => {
       const res = await axios.get(
         `http://localhost:8000/yash-services/services/j-address/${rid}`
       );
 
       dispatch(JourneyStart(res.data));
-
-      const { u_add } = res.data.address_info;
-      setAddress(u_add);
+      setAddress(res.data.address_info.u_add);
 
       const geo = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${u_add}`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${res.data.address_info.u_add}`
       );
       const data = await geo.json();
 
       setUcoord([+data[0].lat, +data[0].lon]);
-    };
-
-    fetchCustomer();
+    })();
   }, [rid, dispatch]);
 
-  // ---------------- WEBSOCKET + LIVE LOCATION ----------------
-  useEffect(() => {
-    wsRef.current = new WebSocket("ws://localhost:8000");
+  /* ---------------- INITIAL WORKER LOCATION ---------------- */
 
-    wsRef.current.onopen = () => {
-      wsRef.current.send(JSON.stringify({ type: "WORKER_JOIN", rid }));
-    };
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setWcoord([pos.coords.latitude, pos.coords.longitude]),
+      console.error,
+      { enableHighAccuracy: true }
+    );
+  }, []);
+
+  /* ---------------- SOCKET.IO ---------------- */
+
+  useEffect(() => {
+    socketRef.current = io("http://localhost:8000");
+    socketRef.current.emit("JOIN", { rid });
+
+    socketRef.current.on("LOCATION", (data) => {
+      setWcoord([data.lat, data.lon]);
+    });
+
+    socketRef.current.on("STATUS", (data) => {
+      setRemoteStatus(data.status);
+    });
+
+    return () => socketRef.current.disconnect();
+  }, [rid]);
+
+  /* ---------------- START ---------------- */
+
+  const startJourney = () => {
+    if (journeyStatus === "RUNNING") return;
+
+    setJourneyStatus("RUNNING");
+    socketRef.current.emit("STATUS", {rid,status: "RUNNING" });
+
+    if (remainingSec === 0) setRemainingSec(initialSec);
 
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
-        const coords = [pos.coords.latitude, pos.coords.longitude];
-        setWcoord(coords);
-
-        wsRef.current?.send(
-          JSON.stringify({
-            type: "WORKER_LOCATION",
-            rid,
-            lat: coords[0],
-            lng: coords[1],
-          })
-        );
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        setWcoord([lat, lon]);
+        socketRef.current.emit("LOCATION", { rid, lat, lon });
       },
       console.error,
       { enableHighAccuracy: true }
     );
+  };
 
-    return () => {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      wsRef.current?.close();
-      clearInterval(timerRef.current);
-    };
-  }, [rid]);
+  /* ---------------- PAUSE ---------------- */
 
-  // ---------------- DISTANCE CALC ----------------
+  const pauseJourney = () => {
+    navigator.geolocation.clearWatch(watchIdRef.current);
+    clearInterval(timerRef.current);
+    setJourneyStatus("PAUSED");
+    socketRef.current.emit("STATUS", {rid,status: "PAUSED" });
+  };
+
+  /* ---------------- END ---------------- */
+
+  const endJourney = () => {
+    navigator.geolocation.clearWatch(watchIdRef.current);
+    clearInterval(timerRef.current);
+    setJourneyStatus("ENDED");
+    socketRef.current.emit("STATUS", {rid,status: "ENDED" });
+  };
+
+  /* ---------------- DISTANCE + ETA ---------------- */
+
   useEffect(() => {
     if (!Ucoord || !Wcoord) return;
 
     const meters = L.latLng(Wcoord).distanceTo(L.latLng(Ucoord));
     const km = meters / 1000;
-    const minutes = (km / 30) * 60;
-    const seconds = Math.floor(minutes * 60);
+    const sec = Math.floor((km / 30) * 3600);
 
     setDistanceKm(km);
 
-    if (journeyStatus === "IDLE") {
-      setRemainingSec(seconds);
-      setInitialSec(seconds);
+    if (initialSec === 0) {
+      setInitialSec(sec);
+      setRemainingSec(sec);
     }
-  }, [Ucoord, Wcoord, journeyStatus]);
+  }, [Ucoord, Wcoord, initialSec]);
 
-  // ---------------- COUNTDOWN ----------------
+  /* ---------------- COUNTDOWN ---------------- */
+
   useEffect(() => {
     if (journeyStatus !== "RUNNING") return;
 
     timerRef.current = setInterval(() => {
-      setRemainingSec((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current);
-          setJourneyStatus("ENDED");
-          return 0;
-        }
-        return prev - 1;
-      });
+      setRemainingSec((s) => (s > 0 ? s - 1 : 0));
     }, 1000);
 
     return () => clearInterval(timerRef.current);
   }, [journeyStatus]);
-
-  // ---------------- BUTTON HANDLERS ----------------
-  const startJourney = () => setJourneyStatus("RUNNING");
-
-  const pauseJourney = () => {
-    clearInterval(timerRef.current);
-    setJourneyStatus("PAUSED");
-  };
-
-  const endJourney = () => {
-    clearInterval(timerRef.current);
-    setRemainingSec(0);
-    setJourneyStatus("ENDED");
-  };
 
   const min = Math.floor(remainingSec / 60);
   const sec = remainingSec % 60;
 
   const linePositions = Ucoord && Wcoord ? [Wcoord, Ucoord] : null;
 
+  /* ---------------- UI ---------------- */
+
   return (
     <div className="pl-10 pr-10">
-      {/* INFO PANEL */}
-      {Ucoord && Wcoord && (
-        <div className="bg-slate-200 p-3 rounded-lg mb-2 text-center font-mono">
+
+      {/* WORKER PANEL */}
+      {workerinfo && (
+        <div className="bg-slate-200 p-4 rounded-lg mb-2 text-center font-mono">
           <p><b>Customer:</b> {address}</p>
-          <p><b>Distance:</b> {distanceKm} km</p>
-          <p><b>Remaining Time:</b> {min}:{sec.toString().padStart(2, "0")}</p>
+          <p><b>Distance:</b> {distanceKm.toFixed(2)} km</p>
+          <p><b>Time:</b> {min}:{sec.toString().padStart(2, "0")}</p>
+          <p><b>Status:</b> {journeyStatus}</p>
 
           <div className="flex justify-center gap-3 mt-2">
-            <button onClick={startJourney} disabled={journeyStatus === "RUNNING"}
-              className="bg-green-500 px-3 py-1 rounded text-white">
-              Start
-            </button>
-
-            <button onClick={pauseJourney} disabled={journeyStatus !== "RUNNING"}
-              className="bg-yellow-500 px-3 py-1 rounded text-white">
-              Pause
-            </button>
-
-            <button onClick={endJourney}
-              className="bg-red-500 px-3 py-1 rounded text-white">
-              End
-            </button>
+            <button onClick={startJourney} className="bg-green-500 px-3 py-1 text-white rounded">Start</button>
+            <button onClick={pauseJourney} className="bg-yellow-500 px-3 py-1 text-white rounded">Pause</button>
+            <button onClick={endJourney} className="bg-red-500 px-3 py-1 text-white rounded">End</button>
           </div>
         </div>
       )}
 
-      <MapContainer
-        center={Wcoord || [19.0566, 72.9108]}
-        zoom={13}
-        style={{ height: "80vh", width: "100%" }}
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {/* USER PANEL */}
+      {userinfo && (
+        <div className="bg-slate-200 p-4 rounded-lg mb-2 text-center font-mono">
+          <p><b>Estimated Time:</b> {min}:{sec.toString().padStart(2, "0")}</p>
+          <p><b>Journey Status:</b> {remoteStatus}</p>
+        </div>
+      )}
 
+      <MapContainer center={Wcoord || [19.0566, 72.9108]} zoom={13} style={{ height: "80vh" }}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <MarkerClusterGroup iconCreateFunction={clusterFunction}>
           {Ucoord && <Marker position={Ucoord} icon={customerIcon} />}
           {Wcoord && <Marker position={Wcoord} icon={workerIcon} />}

@@ -1,14 +1,18 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2/dist/sweetalert2.all.js";
+import CompletionJ from "../Components/CompletionJ";
 const WorkerSingleRequest = () => {
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
   const { reqid } = useParams();
   const { workerinfo } = useSelector((state) => state.worker);
   const { j_info } = useSelector((state) => state.journey);
+  const[email,setemail]=useState(null);
   // const navigate = useNavigate();
+  // const icon="https://cdn-icons-png.flaticon.com/128/684/684908.png"
 
   const request = worker_requests.find((r) => r._id === reqid);
   console.log(j_info);
@@ -91,6 +95,97 @@ const WorkerSingleRequest = () => {
       toast.error("Unable To Start Journey");
     }
   };
+  useEffect(() => {
+    journey_info_sub();
+  }, []);
+  const jobcompletion=async()=>{
+     if (!email) {
+    toast.error("Email not found");
+    return;
+  }
+  try{
+    const sent_otp=await send_otp();
+    if(!send_otp){
+      toast.error("Failed to send otp,Try Again")
+
+    }
+    toast.success("Otp sent on user Email please receive from them.")
+
+    const { value: otp } = await Swal.fire({
+      title: "Enter OTP sent to user email",
+      input: "text",
+      inputPlaceholder: "Enter 6-digit OTP",
+      showCancelButton: true,
+      confirmButtonText: "Verify"
+    });
+
+    if(!otp){
+      return;
+    }
+    const res=await axios.post(
+      "http://localhost:8000/yash-services/services/verify",
+      { email, otp }
+    );
+    console.log(res.data)
+    if(res.data.msg == "OTP VERIFIED SUCCESSFULLY."){
+       toast.success("OTP verified. Job completed.");
+    }
+    else{
+      toast.error("Otp expired or Invalid.")
+    }
+
+    
+  }
+  catch(err){
+    toast.error("Otp Expired or Invalid")
+    console.log(err)
+  }
+    // toast.success("Otp sent on User Email Receive from them")
+    // send_otp();
+    // setTimeout(()=>{
+            // Swal.fire({
+    // title: "Enter Otp Sent on User Email ? ",
+    // showDenyButton: true,
+    // showCancelButton: true,
+    // confirmButtonText: "Submit",
+    // input:"text",
+    // denyButtonText: "No",
+  // }).then(async (result) => {
+    // if (result.isConfirmed) {
+    //  
+    // } else if (result.isDenied) {
+      // Swal.fire("Changes are not saved", "", "info");
+    // }
+  // });
+    // },[3000])
+ };
+ const fetch_email=async()=>{
+  try{
+  const res=await axios.post(`http://localhost:8000/yash-services/services/fetch_email/${request.userid}`)
+  console.log(res.data.email_info.email)
+  setemail(res.data.email_info.email)
+  }
+  catch(err){
+    console.log(err)
+  }
+
+ }
+ useEffect(()=>{
+  fetch_email();
+
+ },[request.userid])
+
+ const send_otp=async()=>{
+  try{
+  const res=await axios.post("http://localhost:8000/yash-services/services/email",{email})
+  console.log(res.data)
+  }
+  catch(err){
+    console.log(err)
+  }
+
+ }
+  
   return (
     <div>
       <div className="bg-green-200 w-[800px] h-[620px] mx-auto mt-7 rounded-3xl p-10">
@@ -105,6 +200,7 @@ const WorkerSingleRequest = () => {
           <h1 className="ml-10 mt-10">User Name:{request.fullname}</h1>
           <h1 className="ml-10 mt-10">User Address:{request.address}</h1>
           <h1 className="ml-10 mt-10">User Mobile:{request.mobile}</h1>
+          {/* <h1 className="ml-10 mt-10">User Email:{request.email}</h1> */}
           <h1 className="ml-10 mt-10">Message:{request.message}</h1>
           <h1 className="ml-10 mt-10">Hire Date:{request.date}</h1>
           <div className="ml-10 mt-10 flex flex-row gap-8">
@@ -145,20 +241,19 @@ const WorkerSingleRequest = () => {
                 }
                 className="bg-green-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               >
-                Start Journey
+                <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" className="mx-auto w-10 h-10"></img>
               </button>
             </Link>
-            <Link to={`/google-maps/${request._id}`}>
-              <button
-                // onClick={journey_info_sub}
-                hidden={
-                  request.status == "Pending"
-                }
-                className="bg-green-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-              >
-                View Address
-              </button>
-            </Link>
+            <button
+              // onClick={journey_info_sub}
+              hidden={
+                request.status == "Pending"
+                // j_info.address_info.status == "Started"
+              }
+              className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+              onClick={jobcompletion}
+            >Completed ?
+            </button>
           </div>
         </div>
       </div>
