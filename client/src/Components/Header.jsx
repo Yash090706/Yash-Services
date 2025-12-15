@@ -31,8 +31,6 @@ const Header = () => {
         <Link to="/">
           <h1>Home</h1>
         </Link>
-        <Link to="/google-maps">Maps
-        </Link>
         {/* <Link to="/services"> */}
           {/* <h1>Sevices</h1> */}
         {/* </Link> */}

@@ -1,18 +1,24 @@
 import axios from "axios";
 import React, { useEffect,useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
 import CompletionJ from "../Components/CompletionJ";
+import { SetHireRequests } from "../Redux/UserHireRequestSlice";
+
 const WorkerSingleRequest = () => {
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
+  const {user_hire_request}=useSelector((state)=>state.user_hire_request)
   const { reqid } = useParams();
   const { workerinfo } = useSelector((state) => state.worker);
   const { j_info } = useSelector((state) => state.journey);
   const[email,setemail]=useState(null);
+  const dispatch=useDispatch();
+
   // const navigate = useNavigate();
   // const icon="https://cdn-icons-png.flaticon.com/128/684/684908.png"
+  console.log(user_hire_request)
 
   const request = worker_requests.find((r) => r._id === reqid);
   console.log(j_info);
@@ -123,10 +129,11 @@ const WorkerSingleRequest = () => {
       return;
     }
     const res=await axios.post(
-      "http://localhost:8000/yash-services/services/verify",
+      `http://localhost:8000/yash-services/services/verify/${request._id}`,
       { email, otp }
     );
-    console.log(res.data)
+    console.log(res.data.up)
+    dispatch(SetHireRequests(res.data.up))
     if(res.data.msg == "OTP VERIFIED SUCCESSFULLY."){
        toast.success("OTP verified. Job completed.");
     }
@@ -207,14 +214,14 @@ const WorkerSingleRequest = () => {
             <button
               className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={accept_req}
-              hidden={request.status === "Accepted"}
+              hidden={request.status === "Accepted" || user_hire_request.status=="Completed"}
             >
               Accept
             </button>
             <button
               className="bg-red-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={cancel_req}
-              hidden={request.status === "Accepted"}
+              hidden={request.status === "Accepted" || user_hire_request.status=="Completed"}
             >
               Reject
             </button>
@@ -239,15 +246,16 @@ const WorkerSingleRequest = () => {
                   request.status == "Pending"
                   // j_info.address_info.status == "Started"
                 }
-                className="bg-green-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+                disabled={user_hire_request.status=="Completed"}
+                className="bg-green-400 text-white p-2 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               >
-                <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" className="mx-auto w-10 h-10"></img>
+                <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" className="mx-auto w-10 h-9"></img>
               </button>
             </Link>
             <button
               // onClick={journey_info_sub}
               hidden={
-                request.status == "Pending"
+               user_hire_request.status=="Completed"
                 // j_info.address_info.status == "Started"
               }
               className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"

@@ -14,6 +14,6 @@ service_routes.get("/messages/history",old_messages);
 service_routes.post("/journey",journey),
 service_routes.get("/j-address/:rid",get_journey_address);
 service_routes.post("/email",sendOTpEmail);
-service_routes.post("/verify",verify_otp);
+service_routes.post("/verify/:id",verify_otp);
 service_routes.post("/fetch_email/:id",fetch_email)
 module.exports={service_routes}

@@ -131,10 +131,10 @@ const handleSignOut=async(e)=>{
             ></input>
           </div>
           <div className="flex flex-row justify-center gap-5">
-          <button type="submit" className=" p-3 rounded-4xl text-xl font-serif w-[200px] bg-gray-700 text-white hover:cursor-pointer hover:opacity-70 border-blue-700">
+          <button type="submit" className=" p-3 rounded-4xl text-xl font-mono w-[200px] bg-gray-700 text-white hover:cursor-pointer hover:opacity-70 border-blue-700">
             {disabled ? "Edit ":"Save"} 
           </button>
-          <button type=" button" className="p-3 bg-red-500 rounded-4xl w-[200px]  text-white shadow-[0_6px_10px_rgba(0,0,0,0.15) font-serif" onClick={handleSignOut} >Sign Out</button>
+          <button type=" button" className="p-3 bg-red-500 rounded-4xl w-[200px]  text-white shadow-[0_6px_10px_rgba(0,0,0,0.15) font-mono text-xl" onClick={handleSignOut} >Sign Out</button>
           </div>
           {/* <button type=" button" className=" bg-red-500 rounded-4xl w-[200px]  text-white shadow-[0_6px_10px_rgba(0,0,0,0.15) font-mono" >Sign Out</button> */}
         </form>

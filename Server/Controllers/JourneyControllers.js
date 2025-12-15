@@ -6,6 +6,7 @@ const redisClient = require("../Config/redis");
 // const twilio=require("twilio")
 const nodemailer = require("nodemailer");
 const { user_model } = require("../Models/UserModel");
+const { hire_model } = require("../Models/HireModel");
 
 // const {server}=require("../index")
 // const {WebSocketServer}=require("ws")
@@ -108,6 +109,7 @@ const sendOTpEmail = async (req, res, next) => {
 };
 const verify_otp=async(req,res,next)=>{
     const{otp,email}=req.body;
+    const{id}=req.params;
     try{
         if(!otp || !email){
             return next(errorhandler(404,"OTP IS REQUIRED"))
@@ -121,12 +123,20 @@ const verify_otp=async(req,res,next)=>{
         if(savedOtp!==otp){
             return next(errorhandler(400,"OTP IS INVALID"))
         }
+        if(!id){
+            return next(errorhandler(400,"Process Failed,Try Again Later"))
+
+        }
 
         await redisClient.del(`otp:${email}`)
+        
+
+       const up= await hire_model.findByIdAndUpdate({_id:id},{status:"Completed"})
 
         res.status(200).json({
             status:1,
-            msg:"OTP VERIFIED SUCCESSFULLY."
+            msg:"OTP VERIFIED SUCCESSFULLY.",
+            up
         })
 
 

@@ -22,6 +22,7 @@ import WorkerRequestPrivateRoute from "./Components/WorkerRequestPrivateRoute";
 import UserRequestPrivateRoute from "./Components/UserRequestPrivateRoute";
 import Chat from "./Pages/Chat";
 import GoogleMaps from "./Pages/GoogleMaps";
+import Payment from "./Pages/Payment";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
@@ -56,6 +57,7 @@ const App = () => {
             <Route path="/services" element={<Services />}></Route>
           </Route>
           <Route path="/chat/:requestId/:senderId/:receiverId/:senderName" element={<Chat/>}></Route>
+          <Route path="/payment" element={<Payment/>}/>
         </Routes>
       </BrowserRouter>
     </div>

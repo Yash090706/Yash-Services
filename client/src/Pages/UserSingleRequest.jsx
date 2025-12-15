@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
+
 const UserSingleRequest = () => {
   const { user_hire_request } = useSelector((state) => state.user_hire_request);
   const { urid } = useParams();
@@ -29,11 +30,16 @@ const UserSingleRequest = () => {
           <h1>Role:{info.role}</h1>
           <h1>Visiting Charges:{info.v_charges}</h1>
           <h1>Experience:{info.experience}</h1>
+          <div className="flex flex-row gap-5 mx-auto">
           <Link to={`/google-maps/${info._id}`}>
-            <button className="bg-green-500 w-[150px] p-3 rounded-4xl text-white hover:cursor-pointer hover:opacity-70 mx-auto">
-              <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" className="mx-auto w-10 h-10"></img>
+            <button disabled={info.status == "Completed"} className="bg-green-500 w-[150px] p-2 rounded-4xl text-white hover:cursor-pointer hover:opacity-70 ">
+              <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" className="mx-auto w-10 h-10" ></img>
             </button>
           </Link>
+          <Link to="/payment">
+          <button className="bg-blue-500 p-3 rounded-4xl text-white hover:cursor-pointer hover:opacity-70 ">Proceed To Pay</button>
+          </Link>
+          </div>
         </div>
       </div>
     </div>
