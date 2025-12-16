@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -9,16 +9,16 @@ import { SetHireRequests } from "../Redux/UserHireRequestSlice";
 
 const WorkerSingleRequest = () => {
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
-  const {user_hire_request}=useSelector((state)=>state.user_hire_request)
+  const { user_hire_request } = useSelector((state) => state.user_hire_request);
   const { reqid } = useParams();
   const { workerinfo } = useSelector((state) => state.worker);
   const { j_info } = useSelector((state) => state.journey);
-  const[email,setemail]=useState(null);
-  const dispatch=useDispatch();
+  const [email, setemail] = useState(null);
+  const dispatch = useDispatch();
 
   // const navigate = useNavigate();
   // const icon="https://cdn-icons-png.flaticon.com/128/684/684908.png"
-  console.log(user_hire_request)
+  console.log(user_hire_request);
 
   const request = worker_requests.find((r) => r._id === reqid);
   console.log(j_info);
@@ -104,95 +104,90 @@ const WorkerSingleRequest = () => {
   useEffect(() => {
     journey_info_sub();
   }, []);
-  const jobcompletion=async()=>{
-     if (!email) {
-    toast.error("Email not found");
-    return;
-  }
-  try{
-    const sent_otp=await send_otp();
-    if(!send_otp){
-      toast.error("Failed to send otp,Try Again")
-
-    }
-    toast.success("Otp sent on user Email please receive from them.")
-
-    const { value: otp } = await Swal.fire({
-      title: "Enter OTP sent to user email",
-      input: "text",
-      inputPlaceholder: "Enter 6-digit OTP",
-      showCancelButton: true,
-      confirmButtonText: "Verify"
-    });
-
-    if(!otp){
+  const jobcompletion = async () => {
+    if (!email) {
+      toast.error("Email not found");
       return;
     }
-    const res=await axios.post(
-      `http://localhost:8000/yash-services/services/verify/${request._id}`,
-      { email, otp }
-    );
-    console.log(res.data.up)
-    dispatch(SetHireRequests(res.data.up))
-    if(res.data.msg == "OTP VERIFIED SUCCESSFULLY."){
-       toast.success("OTP verified. Job completed.");
-    }
-    else{
-      toast.error("Otp expired or Invalid.")
-    }
+    try {
+      const sent_otp = await send_otp();
+      if (!send_otp) {
+        toast.error("Failed to send otp,Try Again");
+      }
+      toast.success("Otp sent on user Email please receive from them.");
 
-    
-  }
-  catch(err){
-    toast.error("Otp Expired or Invalid")
-    console.log(err)
-  }
+      const { value: otp } = await Swal.fire({
+        title: "Enter OTP sent to user email",
+        input: "text",
+        inputPlaceholder: "Enter 6-digit OTP",
+        showCancelButton: true,
+        confirmButtonText: "Verify",
+      });
+
+      if (!otp) {
+        return;
+      }
+      const res = await axios.post(
+        `http://localhost:8000/yash-services/services/verify/${request._id}`,
+        { email, otp }
+      );
+      console.log(res.data.up);
+      dispatch(SetHireRequests(res.data.up));
+      if (res.data.msg == "OTP VERIFIED SUCCESSFULLY.") {
+        toast.success("OTP verified. Job completed.");
+      } else {
+        toast.error("Otp expired or Invalid.");
+      }
+    } catch (err) {
+      toast.error("Otp Expired or Invalid");
+      console.log(err);
+    }
     // toast.success("Otp sent on User Email Receive from them")
     // send_otp();
     // setTimeout(()=>{
-            // Swal.fire({
+    // Swal.fire({
     // title: "Enter Otp Sent on User Email ? ",
     // showDenyButton: true,
     // showCancelButton: true,
     // confirmButtonText: "Submit",
     // input:"text",
     // denyButtonText: "No",
-  // }).then(async (result) => {
+    // }).then(async (result) => {
     // if (result.isConfirmed) {
-    //  
+    //
     // } else if (result.isDenied) {
-      // Swal.fire("Changes are not saved", "", "info");
+    // Swal.fire("Changes are not saved", "", "info");
     // }
-  // });
+    // });
     // },[3000])
- };
- const fetch_email=async()=>{
-  try{
-  const res=await axios.post(`http://localhost:8000/yash-services/services/fetch_email/${request.userid}`)
-  console.log(res.data.email_info.email)
-  setemail(res.data.email_info.email)
-  }
-  catch(err){
-    console.log(err)
-  }
+  };
+  const fetch_email = async () => {
+    try {
+      const res = await axios.post(
+        `http://localhost:8000/yash-services/services/fetch_email/${request.userid}`
+      );
+      console.log(res.data.email_info.email);
+      setemail(res.data.email_info.email);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    fetch_email();
+  }, [request.userid]);
 
- }
- useEffect(()=>{
-  fetch_email();
+  const send_otp = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/yash-services/services/email",
+        { email }
+      );
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
- },[request.userid])
-
- const send_otp=async()=>{
-  try{
-  const res=await axios.post("http://localhost:8000/yash-services/services/email",{email})
-  console.log(res.data)
-  }
-  catch(err){
-    console.log(err)
-  }
-
- }
-  
   return (
     <div>
       <div className="bg-green-200 w-[800px] h-[620px] mx-auto mt-7 rounded-3xl p-10">
@@ -214,14 +209,20 @@ const WorkerSingleRequest = () => {
             <button
               className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={accept_req}
-              hidden={request.status === "Accepted" || user_hire_request.status=="Completed"}
+              hidden={
+                request.status === "Accepted" ||
+                user_hire_request.status == "Completed"
+              }
             >
               Accept
             </button>
             <button
               className="bg-red-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={cancel_req}
-              hidden={request.status === "Accepted" || user_hire_request.status=="Completed"}
+              hidden={
+                request.status === "Accepted" ||
+                user_hire_request.status == "Completed"
+              }
             >
               Reject
             </button>
@@ -246,22 +247,38 @@ const WorkerSingleRequest = () => {
                   request.status == "Pending"
                   // j_info.address_info.status == "Started"
                 }
-                disabled={user_hire_request.status=="Completed"}
+                disabled={user_hire_request.status == "Completed"}
                 className="bg-green-400 text-white p-2 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               >
-                <img src="https://cdn-icons-png.flaticon.com/128/684/684908.png" className="mx-auto w-10 h-9"></img>
+                <img
+                  src="https://cdn-icons-png.flaticon.com/128/684/684908.png"
+                  className="mx-auto w-10 h-9"
+                ></img>
               </button>
             </Link>
             <button
               // onClick={journey_info_sub}
               hidden={
-               user_hire_request.status=="Completed"
+                user_hire_request.status == "Completed"
                 // j_info.address_info.status == "Started"
               }
               className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
               onClick={jobcompletion}
-            >Completed ?
+            >
+              Completed ?
             </button>
+            <Link to={`/payment/${reqid}`}>
+            <button
+              // onClick={journey_info_sub}
+              hidden={
+                user_hire_request.status == "Pending"
+                // j_info.address_info.status == "Started"
+              }
+              className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
+            >
+              Create Bill
+            </button>
+            </Link>
           </div>
         </div>
       </div>

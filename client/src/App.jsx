@@ -57,7 +57,7 @@ const App = () => {
             <Route path="/services" element={<Services />}></Route>
           </Route>
           <Route path="/chat/:requestId/:senderId/:receiverId/:senderName" element={<Chat/>}></Route>
-          <Route path="/payment" element={<Payment/>}/>
+          <Route path="/payment/:rid" element={<Payment/>}/>
         </Routes>
       </BrowserRouter>
     </div>
