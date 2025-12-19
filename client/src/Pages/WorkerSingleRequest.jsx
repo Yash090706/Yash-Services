@@ -21,6 +21,7 @@ const WorkerSingleRequest = () => {
   console.log(user_hire_request);
 
   const request = worker_requests.find((r) => r._id === reqid);
+  console.log(request)
   console.log(j_info);
   if (!request) {
     return (
@@ -192,11 +193,22 @@ const WorkerSingleRequest = () => {
     <div>
       <div className="bg-green-200 w-[800px] h-[620px] mx-auto mt-7 rounded-3xl p-10">
         <ToastContainer />
+        <div className="flex flex-row justify-between">
         <Link to="/worker-req">
+
           <button className=" p-3  w-[100px] bg-blue-300  rounded-3xl font-semibold hover:cursor-pointer hover:opacity-70 text-xl font-mono">
             👈Back
           </button>
         </Link>
+         <Link
+   to={`/chat/${request._id}/${request.workerid}/${request.userid}/${request.fullname}`}
+ >
+   <button
+     className="bg-blue-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+   ><img src="https://cdn-icons-png.flaticon.com/128/1370/1370907.png" className="h-7 w-7"></img>
+   </button>
+ </Link>
+ </div>
         <div className="font-mono w-[500px] mx-auto h-[500px] text-xl">
           <h1 className="ml-10 mt-10">User Id:{request.userid}</h1>
           <h1 className="ml-10 mt-10">User Name:{request.fullname}</h1>
@@ -205,81 +217,89 @@ const WorkerSingleRequest = () => {
           {/* <h1 className="ml-10 mt-10">User Email:{request.email}</h1> */}
           <h1 className="ml-10 mt-10">Message:{request.message}</h1>
           <h1 className="ml-10 mt-10">Hire Date:{request.date}</h1>
-          <div className="ml-10 mt-10 flex flex-row gap-8">
-            <button
-              className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-              onClick={accept_req}
-              hidden={
-                request.status === "Accepted" ||
-                user_hire_request.status == "Completed"
-              }
-            >
-              Accept
-            </button>
-            <button
-              className="bg-red-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-              onClick={cancel_req}
-              hidden={
-                request.status === "Accepted" ||
-                user_hire_request.status == "Completed"
-              }
-            >
-              Reject
-            </button>
-            <Link
-              to={`/chat/${request._id}/${request.workerid}/${request.userid}/${request.fullname}`}
-            >
-              <button
-                className="bg-blue-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-                onClick={() => {
-                  // navigate(`/chat/${request._id}/${request.worker_id}/${request.userid}`);
-                  console.log(request._id);
-                }}
-                hidden={request.status == "Pending"}
-              >
-                Chat
-              </button>
-            </Link>
-            <Link to={`/google-maps/${request._id}`}>
-              <button
-                onClick={journey_info_sub}
-                hidden={
-                  request.status == "Pending"
-                  // j_info.address_info.status == "Started"
-                }
-                disabled={user_hire_request.status == "Completed"}
-                className="bg-green-400 text-white p-2 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-              >
-                <img
-                  src="https://cdn-icons-png.flaticon.com/128/684/684908.png"
-                  className="mx-auto w-10 h-9"
-                ></img>
-              </button>
-            </Link>
-            <button
-              // onClick={journey_info_sub}
-              hidden={
-                user_hire_request.status == "Completed"
-                // j_info.address_info.status == "Started"
-              }
-              className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-              onClick={jobcompletion}
-            >
-              Completed ?
-            </button>
-            <Link to={`/payment/${reqid}`}>
-            <button
-              // onClick={journey_info_sub}
-              hidden={
-                user_hire_request.status == "Pending"
-                // j_info.address_info.status == "Started"
-              }
-              className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
-            >
-              Create Bill
-            </button>
-            </Link>
-          </div>
+         
+         
+         
+         
+         
+        <div className="ml-10 mt-10 flex flex-row flex-wrap gap-6 items-center">
+
+  {/* Accept */}
+  <button
+    className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+    onClick={accept_req}
+  >
+    Accept
+  </button>
+
+  {/* Reject */}
+  <button
+    className="bg-red-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+    onClick={cancel_req}
+  >
+    Reject
+  </button>
+
+  {/* Chat */}
+
+  {/* Map / Journey */}
+  <Link to={`/google-maps/${request._id}`}>
+    <button
+      onClick={journey_info_sub}
+      className="bg-green-400 text-white p-2 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
+    >
+      <img
+        src="https://cdn-icons-png.flaticon.com/128/684/684908.png"
+        className="mx-auto w-10 h-9"
+      />
+    </button>
+  </Link>
+
+  {/* Completed */}
+  <button
+    hidden={user_hire_request.status == "Completed"}
+    className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
+    onClick={jobcompletion}
+  >
+    Completed ?
+  </button>
+
+  {/* Create Bill */}
+  <Link to={`/payment/${request._id}`}>
+    <button
+      hidden={user_hire_request.status == "Pending"}
+      className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
+    >
+      Create Bill
+    </button>
+  </Link>
+
+</div>
+
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
+         
         </div>
       </div>
     </div>

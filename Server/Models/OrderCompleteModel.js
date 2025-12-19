@@ -34,7 +34,17 @@ const orderSchema = mongoose.Schema({
   total:{
      type:Number,
      required:true
-  }
+  },
+  pay_status: {
+    type: String,
+    default: "pending",
+  },
+  pay_mode: {
+    type: String,
+  },
+  paid_at: {
+    type: Date,
+  },
 });
 
 const orderModel = mongoose.model("orderComplete", orderSchema);

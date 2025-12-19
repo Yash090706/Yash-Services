@@ -7,13 +7,16 @@ import sel_workerred from"../SelectedWorkerSlice"
 import worker_reqReducer from "../WorkerRequestSlice"
 import user_req_reducer from "../UserHireRequestSlice"
 import journey_slice from "../JourneySlice"
+import payment_slice from "../PaymentSlice"
 const rootreducer=combineReducers({
     worker:workerreducer,
     user:userreducer,
     selected_worker:sel_workerred,
     worker_req_slice:worker_reqReducer,
     user_hire_request:user_req_reducer,
-    journey:journey_slice
+    journey:journey_slice,
+    payment_slice:payment_slice
+
 
 })
 const persistconfig={

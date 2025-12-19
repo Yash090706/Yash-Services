@@ -23,6 +23,10 @@ import UserRequestPrivateRoute from "./Components/UserRequestPrivateRoute";
 import Chat from "./Pages/Chat";
 import GoogleMaps from "./Pages/GoogleMaps";
 import Payment from "./Pages/Payment";
+import UserPayment from "./Pages/UserPayment";
+import FinalPayUser from "./Pages/FinalPayUser";
+import PastOrders from "./Pages/PastOrders";
+import WPastOrders from "./Pages/WPastOrders";
 const App = () => {
   return (
     <div className="bg-green-100 min-h-screen min-w-screen">
@@ -58,6 +62,10 @@ const App = () => {
           </Route>
           <Route path="/chat/:requestId/:senderId/:receiverId/:senderName" element={<Chat/>}></Route>
           <Route path="/payment/:rid" element={<Payment/>}/>
+          <Route path="/user-payment/:rid/:v_charges" element={<UserPayment/>}/>
+          <Route path="/finalpay/:rid" element={<FinalPayUser/>}></Route>
+          <Route path="/past-orders/:uid" element={<PastOrders/>}/>
+          <Route path="/w-past-orders/:wid" element={<WPastOrders/>}/>
         </Routes>
       </BrowserRouter>
     </div>

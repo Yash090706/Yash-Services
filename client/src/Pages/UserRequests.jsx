@@ -18,9 +18,10 @@ const UserRequests = () => {
   const { user_hire_request } = useSelector((state) => state.user_hire_request);
   console.log(user_hire_request);
   const [notifications, setnnotifications] = useState([]);
-
+  console.log(user_hire_request)
   const navigate = useNavigate();
   const [sended_req, setsended_req] = useState([]);
+  const{paymentinfo}=useSelector((state)=>state.payment_slice)
   const cancel_req = async (hidd) => {
     // e.preventDefault();
     console.log("Swal =", Swal);
@@ -57,6 +58,7 @@ const UserRequests = () => {
         )
         .then((res) => {
           console.log(res.data);
+          console.log(res.data.sended_req_info)
           setsended_req(res.data.sended_req_info);
           dispatch(SetHireRequests(res.data.sended_req_info));
         });
