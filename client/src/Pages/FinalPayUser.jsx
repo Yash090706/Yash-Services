@@ -16,6 +16,7 @@ const FinalPayUser = () => {
   const [hidden_state, sethidden] = useState(true);
   const[uinfo,setuserid]=useState(null)
   const[email,setemail]=useState(null)
+  const [feedback_time,setfeedbacktime]=useState();
   // const {worker_requests}=useSelector((state)=>state.worker_req_slice)
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
 
@@ -23,8 +24,12 @@ const FinalPayUser = () => {
   const req=paymentinfo?.find((r)=>r.up_pay.hid==rid)
   // console.log(req)
   const isPaid=req?.up_pay?.pay_status==="Done"
-
-
+    const[feedback_data,setfeedback_data]=useState({
+    wid:req?.up_pay?.wid,
+msg:"",
+uname:req?.up_pay?.uname,
+date:new Date()
+  })
 
   const fetch_email = async () => {
     try {
@@ -122,8 +127,27 @@ const FinalPayUser = () => {
  // toast.success("Otp sent on User Email Receive from them")
 
   }
-  //localhost:8000/yash-services/services/verify/payment/otp
-  http: return (
+  useEffect(()=>{
+    const timer=setTimeout(()=>{
+      setfeedbacktime(true)
+    },[3000])
+    return ()=>clearTimeout(timer)
+  })
+  const handlefeedbackChange=(e)=>{
+    setfeedback_data({...feedback_data,[e.target.id]:e.target.value})
+  }
+  const feedbackSubmit=async(e)=>{
+    e.preventDefault();
+    try{
+      const res=await axios.post("http://localhost:8000/yash-services/services/feedback",feedback_data)
+      console.log(res.data)
+    }
+    catch(err){
+      console.log(err)
+
+    }
+  }
+return (
 
 
 <div className="mx-auto h-[500px] w-[700px] rounded-3xl mt-10 bg-gradient-to-br from-indigo-100 via-purple-100 to-violet-200 p-6 shadow-xl flex items-center justify-center">
@@ -171,10 +195,32 @@ const FinalPayUser = () => {
         Amount ₹{user_data?.total} received successfully
       </p>
     </div>
+
   )}
+   {feedback_time && (
+        <div className="mt-8 bg-white shadow-md rounded-xl p-6 w-full max-w-md">
+          <h3 className="text-xl font-semibold mb-4">
+            Give Your Feedback
+          </h3>
 
+          <textarea
+            placeholder="Write your feedback..."
+            className="w-full border rounded-lg p-3 focus:outline-none focus:ring"
+            rows={4}
+            value={feedback_data.feedback}
+            id="msg"
+            onChange={handlefeedbackChange}
+          />
+
+          <button
+            className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700"
+            onClick={feedbackSubmit}
+          >
+            Submit Feedback
+          </button>
+        </div>
+      )}
 </div>
-
 
 
   );

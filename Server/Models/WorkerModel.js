@@ -47,7 +47,15 @@ const worker_schema = mongoose.Schema({
   w_address:{
     type:String,
     required:true
+  },
+  feedbacks:[{
+    msg:{type:String},
+    uname:{type:String},
+    date:{type:Date}
   }
+    
+    
+  ]
 
 });
 
