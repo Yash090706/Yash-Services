@@ -6,10 +6,12 @@ const { worker_route } = require("./Routes/Worker_Routes");
 const { WebSocketServer } = require("ws");
 const http = require("http");
 const {Server}=require("socket.io")
+const path=require("path")
 // const clients=require("./web_sockets_clients");
 const {messageModel}=require("./Models/MessageModel")
-let app = express();
+// const __dirname=path.resolve()
 require("dotenv").config();
+let app = express();
 const server = http.createServer(app);
 // Parsing JSON Data
 app.use(express.json());
@@ -168,6 +170,12 @@ io.on("connection",(socket)=>{
   socket.on("disconnect",()=>{
     console.log(`Client/Worker Disconnected ${socket.id}`)
   })
+
+})
+app.use(express.static(path.join(__dirname,"client","dist")))
+
+app.use((req,res)=>{
+  res.sendFile(path.join(__dirname,"client","dist","index.html"))
 
 })
 
