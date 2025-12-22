@@ -15,10 +15,13 @@ const WorkerSingleRequest = () => {
   const { j_info } = useSelector((state) => state.journey);
   const [email, setemail] = useState(null);
   const dispatch = useDispatch();
+  const [hidden,sethidden]=useState(true)
+  const[bill,showbill]=useState(true)
+  const[completed,setcompleted]=useState(false)
 
   // const navigate = useNavigate();
   // const icon="https://cdn-icons-png.flaticon.com/128/684/684908.png"
-  console.log(user_hire_request);
+  // console.log(user_hire_request);
 
   const request = worker_requests.find((r) => r._id === reqid);
   console.log(request)
@@ -30,6 +33,14 @@ const WorkerSingleRequest = () => {
       </div>
     );
   }
+  useEffect(()=>{
+    if(request.status == "Pending"){
+      sethidden(false)
+    }
+    else{
+      sethidden(true)
+    }
+  })
   const accept_req = async () => {
     try {
       console.log(request.userid);
@@ -134,8 +145,11 @@ const WorkerSingleRequest = () => {
       );
       console.log(res.data.up);
       dispatch(SetHireRequests(res.data.up));
+      // console.log(res.data.up)
       if (res.data.msg == "OTP VERIFIED SUCCESSFULLY.") {
         toast.success("OTP verified. Job completed.");
+        showbill(false)
+        setcompleted(true)
       } else {
         toast.error("Otp expired or Invalid.");
       }
@@ -228,6 +242,7 @@ const WorkerSingleRequest = () => {
   <button
     className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
     onClick={accept_req}
+    hidden={hidden}
   >
     Accept
   </button>
@@ -236,6 +251,7 @@ const WorkerSingleRequest = () => {
   <button
     className="bg-red-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
     onClick={cancel_req}
+    hidden={hidden}
   >
     Reject
   </button>
@@ -257,22 +273,22 @@ const WorkerSingleRequest = () => {
 
   {/* Completed */}
   <button
-    hidden={user_hire_request.status == "Completed"}
+    // hidden={user_hire_request.status == "Completed"}
+    // hidden={request.status == "Pending"}
     className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
     onClick={jobcompletion}
+    hidden={completed}
   >
     Completed ?
   </button>
-
-  {/* Create Bill */}
-  <Link to={`/payment/${request._id}`}>
-    <button
-      hidden={user_hire_request.status == "Pending"}
-      className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
-    >
-      Create Bill
-    </button>
-  </Link>
+     <Link to={`/payment/${request._id}`}>
+   <button
+     className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
+     hidden={bill}
+   >
+     Create Bill
+   </button>
+ </Link>
 
 </div>
 
