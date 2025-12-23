@@ -18,7 +18,7 @@ app.use(express.json());
 // Cors To Connect Backend with Frontend
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin:[ "http://localhost:5173","https://yash-services-5.onrender.com"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],

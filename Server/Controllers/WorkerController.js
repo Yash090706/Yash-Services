@@ -66,7 +66,7 @@ const w_signin = async (req, res, next) => {
 
     // Send the created token in cookie on browser
     res
-      .cookie("worker_token", token, { httpOnly: true, expires: token_expiry })
+      .cookie("worker_token", token, { httpOnly: true, expires: token_expiry,secure:true,sameSite:"none"})
       .status(200)
       .json(others);
   } catch (err) {
