@@ -13,6 +13,8 @@ import {
 } from "../Redux/WorkerSlice";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
+
 const WorkerProfile = () => {
   const { workerinfo } = useSelector((state) => state.worker);
   const [disabled, setdisabled] = useState(true);
@@ -37,9 +39,9 @@ const WorkerProfile = () => {
     } else {
       try {
         dispatch(WUpdateStart());
-        await axios
+        await API
           .put(
-            `http://localhost:8000/yash-services/worker/update-w/${workerinfo._id}`,
+            `yash-services/worker/update-w/${workerinfo._id}`,
             formdata,
             { withCredentials: true }
           )
@@ -66,7 +68,7 @@ const WorkerProfile = () => {
   const handleSignOut=async(e)=>{
     e.preventDefault();
     try{
-    await axios.get("http://localhost:8000/yash-services/worker/w-signout")
+    await API.get("/yash-services/worker/w-signout")
     dispatch(WSignOut());
     navigate("/signin")
     

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate,Link} from "react-router-dom";
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const SignUp = () => {
   const navigate = useNavigate();
   const [custdata, setcustdata] = useState({
@@ -29,8 +31,8 @@ const SignUp = () => {
     e.preventDefault();
     if (custdata.UserType === "Customer") {
       try {
-        await axios
-          .post("http://localhost:8000/yash-services/customer/signup", custdata)
+        await API
+          .post("/yash-services/customer/signup", custdata)
           .then((res) => {
             console.log(res.data);
             setcustdata({
@@ -55,9 +57,9 @@ const SignUp = () => {
     if (custdata.UserType === "Worker") {
       try {
         const final_w_data = { ...custdata, ...wdata };
-        await axios
+        await API
           .post(
-            "http://localhost:8000/yash-services/worker/signup",
+            "/yash-services/worker/signup",
             final_w_data
           )
           .then((res) => {

@@ -11,6 +11,7 @@ import {
   SetHireRequests,
 } from "../Redux/UserHireRequestSlice";
 import { toast, ToastContainer } from "react-toastify";
+import API from "../api/axios";
 
 const UserRequests = () => {
   const { userinfo } = useSelector((state) => state.user);
@@ -36,8 +37,8 @@ const UserRequests = () => {
       if (result.isConfirmed) {
         // console.log(sended_req[0]._id);
         const hid = hidd;
-        const res = await axios.post(
-          "http://localhost:8000/yash-services/services/cancel-req",
+        const res = await API.post(
+          "/yash-services/services/cancel-req",
           { hid }
         );
         // fetch_sended_req();
@@ -52,9 +53,9 @@ const UserRequests = () => {
   };
   const fetch_sended_req = async () => {
     try {
-      await axios
+      await API
         .get(
-          `http://localhost:8000/yash-services/services/view-sended-req/${userinfo.others._id}`
+          `/yash-services/services/view-sended-req/${userinfo.others._id}`
         )
         .then((res) => {
           console.log(res.data);
@@ -75,8 +76,8 @@ const UserRequests = () => {
     );
 
     const fetch_pen_not = async () => {
-      const res = await axios.get(
-        `http://localhost:8000/yash-services/services/notifications/${userinfo.others._id}`
+      const res = await API.get(
+        `/yash-services/services/notifications/${userinfo.others._id}`
       );
       console.log(res.data);
       // console.log(res.data.notificationsinfo[0].message)

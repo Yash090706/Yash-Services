@@ -3,7 +3,8 @@ import React, { useState } from "react";
 // import { useRef } from "react";
 import { useSelector } from "react-redux";
 import { ToastContainer, toast } from "react-toastify";
-
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const Services = () => {
   // const location=useLocation();
   // const {workerid}=useParams();
@@ -34,9 +35,9 @@ const Services = () => {
     console.log(sel_worker.worker._id);
 
     try {
-      await axios
+      await API
         .post(
-          `http://localhost:8000/yash-services/services/hire_request/${userinfo.others._id}/${sel_worker.worker._id}`,
+          `/yash-services/services/hire_request/${userinfo.others._id}/${sel_worker.worker._id}`,
           formdata
         )
         .then((res) => {

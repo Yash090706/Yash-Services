@@ -5,6 +5,7 @@ import axios from "axios";
 import { USignOut, UUpdateSuccess } from "../Redux/UserSlice";
 import {toast,ToastContainer} from "react-toastify"
 import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
 axios.defaults.withCredentials = true;
 const UserProfile = () => {
   const navigate=useNavigate();
@@ -27,8 +28,8 @@ const UserProfile = () => {
       setDisabled(false)
     }
     else{
-    const url=`http://localhost:8000/yash-services/customer/user-update/${userinfo.others._id}`
-    await axios.put(url,updated_data, { withCredentials: true }).then((res)=>{
+    const url=`/yash-services/customer/user-update/${userinfo.others._id}`
+    await API.put(url,updated_data, { withCredentials: true }).then((res)=>{
       console.log(res.data)
       dispatch(UUpdateSuccess(res.data))
       toast.success("User Updated SuccessFuly.")
@@ -46,7 +47,7 @@ const UserProfile = () => {
 const handleSignOut=async(e)=>{
   e.preventDefault();
   try{
-  await axios.get("http://localhost:8000/yash-services/customer/user-signout")
+  await API.get("/yash-services/customer/user-signout")
   dispatch(USignOut());
   toast.success("User Signed Out Successfully.")
   setTimeout(()=>{

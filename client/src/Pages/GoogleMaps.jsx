@@ -9,7 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { JourneyStart } from "../Redux/JourneySlice";
 import L from "leaflet";
 import { io } from "socket.io-client";
-
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const GoogleMaps = () => {
   const { rid } = useParams();
   const dispatch = useDispatch();
@@ -55,8 +56,8 @@ const GoogleMaps = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await axios.get(
-        `http://localhost:8000/yash-services/services/j-address/${rid}`
+      const res = await API.get(
+        `/yash-services/services/j-address/${rid}`
       );
 
       dispatch(JourneyStart(res.data));
@@ -84,7 +85,7 @@ const GoogleMaps = () => {
   /* ---------------- SOCKET.IO ---------------- */
 
   useEffect(() => {
-    socketRef.current = io("http://localhost:8000");
+    socketRef.current = io("yash-services-6.onrender.com");
     socketRef.current.emit("JOIN", { rid });
 
     socketRef.current.on("LOCATION", (data) => {

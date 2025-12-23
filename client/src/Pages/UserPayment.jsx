@@ -3,8 +3,10 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
+import API from "../api/axios";
 // useState
 
+axios.defaults.withCredentials = true;
 const UserPayment = () => {
   const { rid, v_charges } = useParams();
   const [user_data, setuserdata] = useState(null);
@@ -21,8 +23,8 @@ const UserPayment = () => {
 
   const get_payment_details = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:8000/yash-services/services/user-payment",
+      const res = await API.post(
+        "/yash-services/services/user-payment",
         { hid: rid }
       );
       console.log(res.data);

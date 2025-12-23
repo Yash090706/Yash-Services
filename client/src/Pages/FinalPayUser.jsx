@@ -7,6 +7,8 @@ import Swal from "sweetalert2/dist/sweetalert2.all.js";
 import { useDispatch, useSelector } from "react-redux";
 import { ToastContainer,toast} from "react-toastify";
 import { PaymentFailed, PaymentSuccess } from "../Redux/PaymentSlice";
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const FinalPayUser = () => {
   const [user_data, setuserdata] = useState(null);
   const { rid } = useParams();
@@ -33,8 +35,8 @@ date:new Date()
 
   const fetch_email = async () => {
     try {
-      const res = await axios.post(
-        `http://localhost:8000/yash-services/services/fetch_email/${user_data?.uid}`
+      const res = await API.post(
+        `/yash-services/services/fetch_email/${user_data?.uid}`
       );
       console.log(res.data.email_info.email);
       setemail(res.data.email_info);
@@ -53,8 +55,8 @@ date:new Date()
   },[user_data?.uid])
   const get_payment_details = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:8000/yash-services/services/user-payment",
+      const res = await API.post(
+        "/yash-services/services/user-payment",
         { hid: rid }
       );
       console.log(res.data);
@@ -69,8 +71,8 @@ date:new Date()
   const send_otp = async () => {
     try {
       console.log(email?.email)
-      const res = await axios.post(
-        "http://localhost:8000/yash-services/services/send/payment/otp",
+      const res = await API.post(
+        "/yash-services/services/send/payment/otp",
         { email:email?.email ,billno:user_data._id}
       );
       // sethidden(false)
@@ -98,14 +100,14 @@ date:new Date()
    if (!otp) {
      return;
    }
-   const res = await axios.post(
-     `http://localhost:8000/yash-services/services/verify/payment/otp`,
+   const res = await API.post(
+     `/yash-services/services/verify/payment/otp`,
      { email:email?.email, otp }
    );
    console.log(res.data);
   //  dispatch(SetHireRequests(res.data.up));
    if (res.data.msg == "Otp Verified SuccessFully.") {
-    const pay_res=await axios.post(`http://localhost:8000/yash-services/services/paymentdone`,{
+    const pay_res=await API.post(`/yash-services/services/paymentdone`,{
       pay_status:"Done",pay_mode:mode,rid
     }).then((res)=>{
       console.log(res.data)
@@ -139,7 +141,7 @@ date:new Date()
   const feedbackSubmit=async(e)=>{
     e.preventDefault();
     try{
-      const res=await axios.post("http://localhost:8000/yash-services/services/feedback",feedback_data)
+      const res=await API.post("/yash-services/services/feedback",feedback_data)
       console.log(res.data)
     }
     catch(err){

@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useRef } from "react";
 import userimg from "../assets/userimg.jpg";
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const Chat = () => {
   const { requestId, senderId, receiverId, senderName } = useParams();
   console.log("Chat params:", {
@@ -33,8 +35,8 @@ const Chat = () => {
     }
     const fetch_history = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/yash-services/services/messages/history?roomId=${requestId}`
+        const res = await API.get(
+          `/yash-services/services/messages/history?roomId=${requestId}`
         );
         setMessages(res.data.messages);
       } catch (err) {
@@ -44,7 +46,7 @@ const Chat = () => {
     fetch_history();
 
     const socket = new WebSocket(
-      `ws://localhost:8000/chat?userId=${senderId}&roomId=${requestId}`
+      `wss://yash-services-6.onrender.com/chat?userId=${senderId}&roomId=${requestId}`
     );
     setWS(socket);
 

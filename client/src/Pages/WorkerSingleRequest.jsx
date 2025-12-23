@@ -6,6 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
 import CompletionJ from "../Components/CompletionJ";
 import { SetHireRequests } from "../Redux/UserHireRequestSlice";
+import API from "../api/axios";
 
 const WorkerSingleRequest = () => {
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
@@ -48,8 +49,8 @@ const WorkerSingleRequest = () => {
         cid: request.userid,
         hid: request._id,
       });
-      const res = await axios.post(
-        "http://localhost:8000/yash-services/services/accept-request",
+      const res = await API.post(
+        "/yash-services/services/accept-request",
         {
           cid: request.userid,
           hid: request._id,
@@ -80,8 +81,8 @@ const WorkerSingleRequest = () => {
   // },[workerinfo])
   const cancel_req = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:8000/yash-services/services/worker-cancel-req",
+      const res = await API.post(
+        "/yash-services/services/worker-cancel-req",
         { hid: request._id }
       );
       console.log(res.data);
@@ -102,8 +103,8 @@ const WorkerSingleRequest = () => {
       date_time: dt,
     };
     try {
-      await axios
-        .post("http://localhost:8000/yash-services/services/journey", jinfo)
+      await API
+        .post("/yash-services/services/journey", jinfo)
         .then((res) => {
           // toast.success("Journey Started.");
           console.log(res.data);
@@ -139,8 +140,8 @@ const WorkerSingleRequest = () => {
       if (!otp) {
         return;
       }
-      const res = await axios.post(
-        `http://localhost:8000/yash-services/services/verify/${request._id}`,
+      const res = await API.post(
+        `/yash-services/services/verify/${request._id}`,
         { email, otp }
       );
       console.log(res.data.up);
@@ -178,8 +179,8 @@ const WorkerSingleRequest = () => {
   };
   const fetch_email = async () => {
     try {
-      const res = await axios.post(
-        `http://localhost:8000/yash-services/services/fetch_email/${request.userid}`
+      const res = await API.post(
+        `/yash-services/services/fetch_email/${request.userid}`
       );
       console.log(res.data.email_info.email);
       setemail(res.data.email_info.email);
@@ -193,8 +194,8 @@ const WorkerSingleRequest = () => {
 
   const send_otp = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:8000/yash-services/services/email",
+      const res = await API.post(
+        "/yash-services/services/email",
         { email }
       );
       console.log(res.data);

@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 
 const Payment = () => {
   const { user_hire_request } = useSelector(
@@ -96,8 +98,8 @@ const Payment = () => {
     };
 
     try {
-      await axios.post(
-        "http://localhost:8000/yash-services/services/bill-save",
+      await API.post(
+        "/yash-services/services/bill-save",
         data
       );
       toast.success("Bill Created SuccesFully.");

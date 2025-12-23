@@ -3,14 +3,15 @@ import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const PastOrders = () => {
   const { uid } = useParams();
   const [pastorders, setpastorders] = useState([]);
   const get_past_orders = async () => {
     try {
-      const res = await axios.post(
-        "http://localhost:8000/yash-services/services/past-orders",
+      const res = await API.post(
+        "/yash-services/services/past-orders",
         { uid }
       );
       console.log(res.data.info);

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { SetRequests } from "../Redux/WorkerRequestSlice";
+import API from "../api/axios";
 const WorkerRequests = () => {
   const { workerinfo } = useSelector((state) => state.worker);
   const [hireinfo, sethireinfo] = useState([]);
@@ -18,8 +19,8 @@ const WorkerRequests = () => {
 
     const fetch_workers_request = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/yash-services/services/get-hire-req/${workerinfo._id}`
+        const res = await API.get(
+          `/yash-services/services/get-hire-req/${workerinfo._id}`
         );
         console.log(res.data.h_req_info);
         sethireinfo(res.data.h_req_info);

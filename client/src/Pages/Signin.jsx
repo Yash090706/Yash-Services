@@ -10,6 +10,8 @@ import {
   USignInStart,
   USignInSuccess,
 } from "../Redux/UserSlice";
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const Signin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -26,8 +28,8 @@ const Signin = () => {
     if (signindata.UserType == "Worker") {
       try {
         dispatch(SignInStart());
-        await axios
-          .post("http://localhost:8000/yash-services/worker/signin", signindata)
+        await API
+          .post("/yash-services/worker/signin", signindata)
           .then((res) => {
             console.log(res.data);
             dispatch(SignInSuccess(res.data));
@@ -50,9 +52,9 @@ const Signin = () => {
     if (signindata.UserType == "Customer") {
       try {
         dispatch(USignInStart());
-        await axios
+        await API
           .post(
-            "http://localhost:8000/yash-services/customer/signin",
+            "/yash-services/customer/signin",
             signindata
           )
           .then((res) => {

@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import { useState } from "react";
 import userimg from "../assets/userimg.jpg"
 import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 // import Header from '../Components/Header'
-
 const Home = () => {
   const navigate=useNavigate();
   const getworkerid=async(workerid)=>{
-    await axios.get(`http://localhost:8000/yash-services/worker/worker-data/${workerid}`).then((res)=>{
+    await API.get(`/yash-services/worker/worker-data/${workerid}`).then((res)=>{
       if(res.data.status == 1){
         const wdata=res.data.worker_data
         navigate("/worker",{state:wdata});
@@ -26,8 +27,8 @@ const Home = () => {
   }
   const [workers_list, setworkers_list] = useState([]);
   const fetch_workers = async () => {
-    await axios
-      .get("http://localhost:8000/yash-services/worker/workerlist")
+    await API
+      .get("/yash-services/worker/workerlist")
       .then((res) => {
         if (res.data.status === 1) {
           console.log(res.data.wlist);

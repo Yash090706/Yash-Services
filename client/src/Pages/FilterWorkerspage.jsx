@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import userimg from "../assets/userimg.jpg";
+import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const FilterWorkerspage = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -14,8 +16,8 @@ const FilterWorkerspage = () => {
   const [result, setresults] = useState(true);
   const navigate = useNavigate();
   const getworkerid = async (workerid) => {
-    await axios
-      .get(`http://localhost:8000/yash-services/worker/worker-data/${workerid}`)
+    await API
+      .get(`/yash-services/worker/worker-data/${workerid}`)
       .then((res) => {
         if (res.data.status == 1) {
           const wdata = res.data.worker_data;
@@ -31,8 +33,8 @@ const FilterWorkerspage = () => {
   useEffect(() => {
     const filter_workers = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8000/yash-services/worker/search",
+        const res = await API.get(
+          "/yash-services/worker/search",
           {
             params: { role, fullname },
           }
