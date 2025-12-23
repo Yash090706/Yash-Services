@@ -72,7 +72,7 @@ const UserRequests = () => {
     if (!userinfo || !userinfo.others?._id) return;
     console.log("socket id", userinfo.others._id);
     const ws = new WebSocket(
-      `ws://localhost:8000?userId=${userinfo.others._id}`
+      `wss://yash-services-6.onrender.com?userId=${userinfo.others._id}`
     );
 
     const fetch_pen_not = async () => {

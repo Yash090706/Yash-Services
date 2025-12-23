@@ -90,13 +90,13 @@ const sendOTpEmail = async (req, res, next) => {
     const transporter = await nodemailer.createTransport({
       service:"gmail",
       auth: {
-        user: "yash.nanekar.5125644@ves.ac.in",
+        user: process.env.EMAIL_URL,
         pass: process.env.APP_PASSWORD,
       },
     });
 
     const message = await transporter.sendMail({
-      from: '"Yash Services" <justine.weissnat@ethereal.email>',
+      from: '"Yash Services" <process.env.EMAIL_URL>',
       to: email,
       subject: "Hello otp",
       text: "Hello world?", // plain‑text body

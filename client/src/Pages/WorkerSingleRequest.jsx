@@ -200,18 +200,21 @@ const WorkerSingleRequest = () => {
   useEffect(() => {
     fetch_email();
   }, [request.userid]);
+const send_otp = async () => {
+  try {
+    const res = await API.post("/yash-services/services/email", { email });
 
-  const send_otp = async () => {
-    try {
-      const res = await API.post(
-        "/yash-services/services/email",
-        { email }
-      );
-      console.log(res.data);
-    } catch (err) {
-      console.log(err);
+    if (res.data?.status === 1) {
+      return true;
+    } else {
+      return false;
     }
-  };
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
 
   return (
     <div>

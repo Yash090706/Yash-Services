@@ -18,7 +18,7 @@ app.use(express.json());
 // Cors To Connect Backend with Frontend
 app.use(
   cors({
-    origin:[ "http://localhost:5173","https://yash-services-5.onrender.com"],
+    origin:[ "http://localhost:5173","https://yash-services-6.onrender.com"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -137,9 +137,9 @@ wss.on("connection",async(ws,req)=>{
 
 // Location Socket
 const io=new Server(server,{
-  cors:{
-    origin:"*"
-  }
+  origin: "https://yash-services-6.onrender.com",
+    methods: ["GET", "POST"],
+    credentials: true
 }) 
 
 io.on("connection",(socket)=>{
