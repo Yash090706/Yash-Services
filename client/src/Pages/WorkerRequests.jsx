@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { SetRequests } from "../Redux/WorkerRequestSlice";
 import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const WorkerRequests = () => {
   const { workerinfo } = useSelector((state) => state.worker);
   const [hireinfo, sethireinfo] = useState([]);

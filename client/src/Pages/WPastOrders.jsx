@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import API from "../api/axios";
-
+axios.defaults.withCredentials = true;
 const WPastOrders = () => {
     const { wid } = useParams();
 const [pastorders, setpastorders] = useState([]);

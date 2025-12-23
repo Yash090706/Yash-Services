@@ -14,7 +14,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
-
+axios.defaults.withCredentials = true;
 const WorkerProfile = () => {
   const { workerinfo } = useSelector((state) => state.worker);
   const [disabled, setdisabled] = useState(true);

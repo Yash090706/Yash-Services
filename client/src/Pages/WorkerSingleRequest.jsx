@@ -7,6 +7,7 @@ import Swal from "sweetalert2/dist/sweetalert2.all.js";
 import CompletionJ from "../Components/CompletionJ";
 import { SetHireRequests } from "../Redux/UserHireRequestSlice";
 import API from "../api/axios";
+axios.defaults.withCredentials = true;
 
 const WorkerSingleRequest = () => {
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
@@ -118,12 +119,20 @@ const WorkerSingleRequest = () => {
     journey_info_sub();
   }, []);
   const jobcompletion = async () => {
+    Swal.fire({
+  title: "Sending OTP...",
+  allowOutsideClick: false,
+  didOpen: () => Swal.showLoading(),
+});
+
     if (!email) {
       toast.error("Email not found");
       return;
     }
     try {
       const sent_otp = await send_otp();
+      Swal.close();
+
       if (!send_otp) {
         toast.error("Failed to send otp,Try Again");
       }

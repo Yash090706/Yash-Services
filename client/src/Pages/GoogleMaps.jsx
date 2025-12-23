@@ -85,7 +85,7 @@ const GoogleMaps = () => {
   /* ---------------- SOCKET.IO ---------------- */
 
   useEffect(() => {
-    socketRef.current = io("yash-services-6.onrender.com");
+    socketRef.current = io("https://yash-services-6.onrender.com");
     socketRef.current.emit("JOIN", { rid });
 
     socketRef.current.on("LOCATION", (data) => {

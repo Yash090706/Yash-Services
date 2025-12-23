@@ -12,7 +12,7 @@ import {
 } from "../Redux/UserHireRequestSlice";
 import { toast, ToastContainer } from "react-toastify";
 import API from "../api/axios";
-
+axios.defaults.withCredentials = true;
 const UserRequests = () => {
   const { userinfo } = useSelector((state) => state.user);
   const dispatch = useDispatch();

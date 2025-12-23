@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { Selected_Worker_Success } from "../Redux/SelectedWorkerSlice";
 import { toast, ToastContainer } from "react-toastify";
 import API from "../api/axios";
+axios.defaults.withCredentials = true;
 const WorkerPage = () => {
   const [open, setopen] = useState(false);
   const location = useLocation();
