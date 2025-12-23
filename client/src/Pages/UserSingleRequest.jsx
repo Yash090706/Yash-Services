@@ -1,7 +1,7 @@
 import React, { useEffect,useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 const UserSingleRequest = () => {
   const { user_hire_request } = useSelector((state) => state.user_hire_request);
   const { urid } = useParams();
