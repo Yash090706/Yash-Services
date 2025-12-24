@@ -1,7 +1,7 @@
 const { createClient } = require("redis");
 
 const redisClient = createClient({
-    url: process.env.REDIS_URL,
+    url: process.env.REDIS_URL || process.env.INTERNAL_REDIS_URL,
     socket: {
         // We remove 'tls: true' here because rediss:// in the URL handles it.
         // But we keep 'rejectUnauthorized' for cloud compatibility.
