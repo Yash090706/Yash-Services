@@ -1,335 +1,184 @@
-import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2/dist/sweetalert2.all.js";
-import CompletionJ from "../Components/CompletionJ";
 import { SetHireRequests } from "../Redux/UserHireRequestSlice";
 import API from "../api/axios";
-axios.defaults.withCredentials = true;
 
 const WorkerSingleRequest = () => {
   const { worker_requests } = useSelector((state) => state.worker_req_slice);
-  const { user_hire_request } = useSelector((state) => state.user_hire_request);
-  const { reqid } = useParams();
   const { workerinfo } = useSelector((state) => state.worker);
-  const { j_info } = useSelector((state) => state.journey);
-  const [email, setemail] = useState(null);
-  const dispatch = useDispatch();
-  const [hidden,sethidden]=useState(true)
-  const[bill,showbill]=useState(true)
-  const[completed,setcompleted]=useState(false)
 
-  // const navigate = useNavigate();
-  // const icon="https://cdn-icons-png.flaticon.com/128/684/684908.png"
-  // console.log(user_hire_request);
+  const { reqid } = useParams();
+  const dispatch = useDispatch();
+
+  const [email, setEmail] = useState(null);
+  const [hidden, setHidden] = useState(true);
+  const [bill, setBill] = useState(true);
+  const [completed, setCompleted] = useState(false);
 
   const request = worker_requests.find((r) => r._id === reqid);
-  console.log(request)
-  console.log(j_info);
+
+  /* -------------------- GUARD -------------------- */
   if (!request) {
-    return (
-      <div>
-        <h1>No Request</h1>
-      </div>
-    );
+    return <h1 className="text-center mt-10">No Request Found</h1>;
   }
-  useEffect(()=>{
-    if(request.status == "Pending"){
-      sethidden(false)
-    }
-    else{
-      sethidden(true)
-    }
-  })
+
+  /* -------------------- STATUS HANDLING -------------------- */
+  useEffect(() => {
+    setHidden(request.status !== "Pending");
+  }, [request.status]);
+
+  /* -------------------- ACCEPT -------------------- */
   const accept_req = async () => {
     try {
-      console.log(request.userid);
-      console.log({
+      await API.post("/yash-services/services/accept-request", {
         cid: request.userid,
         hid: request._id,
       });
-      const res = await API.post(
-        "/yash-services/services/accept-request",
-        {
-          cid: request.userid,
-          hid: request._id,
-        }
-      );
-      console.log(res.data);
-      toast.success("Request Accepted.");
+      toast.success("Request Accepted");
     } catch (err) {
-      console.log(err);
-      toast.error("Failed.");
+      console.error(err);
+      toast.error("Failed to accept request");
     }
   };
-  // useEffect(()=>{
-  // if(!workerinfo){
-  // navigate("/signin");
-  // return;
-  // }
-  // const ws=new WebSocket(`ws://localhost:8000?userId=${workerinfo._id}`)
 
-  // ws.onopen=()=>{
-  // console.log("Websocket of Worker Connected.")
-  // }
-  // ws.onclose=()=>{
-  // console.log("Websocket of Worker Disconnected.")
-  // }
-  // return () => ws.close();
-
-  // },[workerinfo])
+  /* -------------------- CANCEL -------------------- */
   const cancel_req = async () => {
     try {
-      const res = await API.post(
-        "/yash-services/services/worker-cancel-req",
-        { hid: request._id }
-      );
-      console.log(res.data);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const journey_info_sub = async () => {
-    const now = new Date();
-    const dt = now.toLocaleString();
-    const jinfo = {
-      uid: request.userid,
-      wid: request.workerid,
-      j_hid: request._id,
-      u_add: request.address,
-      w_add: workerinfo.w_address,
-      status: "Started",
-      date_time: dt,
-    };
-    try {
-      await API
-        .post("/yash-services/services/journey", jinfo)
-        .then((res) => {
-          // toast.success("Journey Started.");
-          console.log(res.data);
-        });
-    } catch (err) {
-      console.log(err);
-      toast.error("Unable To Start Journey");
-    }
-  };
-  useEffect(() => {
-    journey_info_sub();
-  }, []);
-  const jobcompletion = async () => {
-    Swal.fire({
-  title: "Sending OTP...",
-  allowOutsideClick: false,
-  didOpen: () => Swal.showLoading(),
-});
-
-    if (!email) {
-      toast.error("Email not found");
-      return;
-    }
-    try {
-      const sent_otp = await send_otp();
-      Swal.close();
-
-      if (!send_otp) {
-        toast.error("Failed to send otp,Try Again");
-        return;
-      }
-      toast.success("Otp sent on user Email please receive from them.");
-
-      const { value: otp } = await Swal.fire({
-        title: "Enter OTP sent to user email",
-        input: "text",
-        inputPlaceholder: "Enter 6-digit OTP",
-        showCancelButton: true,
-        confirmButtonText: "Verify",
+      await API.post("/yash-services/services/worker-cancel-req", {
+        hid: request._id,
       });
-
-      if (!otp) {
-        return;
-      }
-      const res = await API.post(
-        `/yash-services/services/verify/${request?._id}`,
-        { email, otp }
-      );
-      console.log(res.data.up);
-      dispatch(SetHireRequests(res.data.up));
-      // console.log(res.data.up)
-      if (res.data.msg == "OTP VERIFIED SUCCESSFULLY.") {
-        toast.success("OTP verified. Job completed.");
-        showbill(false)
-        setcompleted(true)
-      } else {
-        toast.error("Otp expired or Invalid.");
-      }
+      toast.success("Request Cancelled");
     } catch (err) {
-      toast.error("Otp Expired or Invalid");
-      console.log(err);
+      console.error(err);
+      toast.error("Failed to cancel request");
     }
-    // toast.success("Otp sent on User Email Receive from them")
-    // send_otp();
-    // setTimeout(()=>{
-    // Swal.fire({
-    // title: "Enter Otp Sent on User Email ? ",
-    // showDenyButton: true,
-    // showCancelButton: true,
-    // confirmButtonText: "Submit",
-    // input:"text",
-    // denyButtonText: "No",
-    // }).then(async (result) => {
-    // if (result.isConfirmed) {
-    //
-    // } else if (result.isDenied) {
-    // Swal.fire("Changes are not saved", "", "info");
-    // }
-    // });
-    // },[3000])
   };
-  const fetch_email = async () => {
+
+  /* -------------------- FETCH EMAIL -------------------- */
+  const fetch_email = useCallback(async () => {
     try {
       const res = await API.post(
-        `/yash-services/services/fetch_email/${request?.userid}`
+        `/yash-services/services/fetch_email/${request.userid}`
       );
-      console.log(res.data.email_info.email);
-      setemail(res?.data?.email_info?.email);
+      setEmail(res?.data?.email_info?.email || null);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
-  };
+  }, [request.userid]);
+
   useEffect(() => {
     fetch_email();
-  }, [request?.userid]);
-const send_otp = async () => {
-  try {
-    const res = await API.post("/yash-services/services/email", { email });
+  }, [fetch_email]);
 
-    if (res.data?.status === 1) {
-      return true;
-    } else {
+  /* -------------------- SEND OTP -------------------- */
+  const send_otp = async () => {
+    try {
+      const res = await API.post("/yash-services/services/email", { email });
+      return res.data?.status === 1;
+    } catch (err) {
+      console.error(err);
       return false;
     }
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-};
+  };
 
+  /* -------------------- JOB COMPLETION -------------------- */
+  const jobcompletion = async () => {
+    if (!email) {
+      toast.error("User email not found");
+      return;
+    }
 
+    Swal.fire({
+      title: "Sending OTP...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    const otpSent = await send_otp();
+    Swal.close();
+
+    if (!otpSent) {
+      toast.error("Failed to send OTP");
+      return;
+    }
+
+    const { value: otp } = await Swal.fire({
+      title: "Enter OTP",
+      input: "text",
+      inputPlaceholder: "6-digit OTP",
+      showCancelButton: true,
+      confirmButtonText: "Verify",
+    });
+
+    if (!otp) return;
+
+    try {
+      const res = await API.post(
+        `/yash-services/services/verify/${request._id}`,
+        { email, otp }
+      );
+
+      dispatch(SetHireRequests(res.data.up));
+
+      toast.success("Job Completed");
+      setBill(false);
+      setCompleted(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("OTP Invalid or Expired");
+    }
+  };
+
+  /* -------------------- UI -------------------- */
   return (
-    <div>
-      <div className="bg-green-200 w-[800px] h-[620px] mx-auto mt-7 rounded-3xl p-10">
-        <ToastContainer />
-        <div className="flex flex-row justify-between">
-        <Link to="/worker-req">
+    <div className="bg-green-200 w-[800px] h-[620px] mx-auto mt-7 rounded-3xl p-10">
+      <ToastContainer />
 
-          <button className=" p-3  w-[100px] bg-blue-300  rounded-3xl font-semibold hover:cursor-pointer hover:opacity-70 text-xl font-mono">
-            👈Back
+      <div className="flex justify-between">
+        <Link to="/worker-req">
+          <button className="p-3 bg-blue-300 rounded-3xl">👈 Back</button>
+        </Link>
+
+        <Link
+          to={`/chat/${request._id}/${request.workerid}/${request.userid}/${request.fullname}`}
+        >
+          <button className="bg-blue-400 p-3 rounded-3xl">
+            <img
+              src="https://cdn-icons-png.flaticon.com/128/1370/1370907.png"
+              className="h-7 w-7"
+            />
           </button>
         </Link>
-         <Link
-   to={`/chat/${request._id}/${request.workerid}/${request.userid}/${request.fullname}`}
- >
-   <button
-     className="bg-blue-400 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-   ><img src="https://cdn-icons-png.flaticon.com/128/1370/1370907.png" className="h-7 w-7"></img>
-   </button>
- </Link>
- </div>
-        <div className="font-mono w-[500px] mx-auto h-[500px] text-xl">
-          <h1 className="ml-10 mt-10">User Id:{request.userid}</h1>
-          <h1 className="ml-10 mt-10">User Name:{request.fullname}</h1>
-          <h1 className="ml-10 mt-10">User Address:{request.address}</h1>
-          <h1 className="ml-10 mt-10">User Mobile:{request.mobile}</h1>
-          {/* <h1 className="ml-10 mt-10">User Email:{request.email}</h1> */}
-          <h1 className="ml-10 mt-10">Message:{request.message}</h1>
-          <h1 className="ml-10 mt-10">Hire Date:{request.date}</h1>
-         
-         
-         
-         
-         
-        <div className="ml-10 mt-10 flex flex-row flex-wrap gap-6 items-center">
+      </div>
 
-  {/* Accept */}
-  <button
-    className="bg-green-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-    onClick={accept_req}
-    hidden={hidden}
-  >
-    Accept
-  </button>
+      <div className="mt-10 space-y-3 font-mono text-lg">
+        <p>User Name: {request.fullname}</p>
+        <p>Address: {request.address}</p>
+        <p>Mobile: {request.mobile}</p>
+        <p>Message: {request.message}</p>
+        <p>Date: {request.date}</p>
 
-  {/* Reject */}
-  <button
-    className="bg-red-500 text-white p-3 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-    onClick={cancel_req}
-    hidden={hidden}
-  >
-    Reject
-  </button>
+        <div className="flex gap-4 mt-6">
+          <button onClick={accept_req} hidden={hidden} className="bg-green-500 p-3 rounded-3xl">
+            Accept
+          </button>
 
-  {/* Chat */}
+          <button onClick={cancel_req} hidden={hidden} className="bg-red-500 p-3 rounded-3xl">
+            Reject
+          </button>
 
-  {/* Map / Journey */}
-  <Link to={`/google-maps/${request._id}`}>
-    <button
-      onClick={journey_info_sub}
-      className="bg-green-400 text-white p-2 rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75"
-    >
-      <img
-        src="https://cdn-icons-png.flaticon.com/128/684/684908.png"
-        className="mx-auto w-10 h-9"
-      />
-    </button>
-  </Link>
+          <button onClick={jobcompletion} hidden={completed} className="bg-purple-400 p-3 rounded-3xl">
+            Completed ?
+          </button>
 
-  {/* Completed */}
-  <button
-    // hidden={user_hire_request.status == "Completed"}
-    // hidden={request.status == "Pending"}
-    className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
-    onClick={jobcompletion}
-    hidden={completed}
-  >
-    Completed ?
-  </button>
-     <Link to={`/payment/${request._id}`}>
-   <button
-     className="bg-purple-400 text-white rounded-3xl text-center font-mono hover:cursor-pointer hover:opacity-75 p-3"
-     hidden={bill}
-   >
-     Create Bill
-   </button>
- </Link>
-
-</div>
-
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
-         
+          <Link to={`/payment/${request._id}`}>
+            <button hidden={bill} className="bg-purple-500 p-3 rounded-3xl">
+              Create Bill
+            </button>
+          </Link>
         </div>
       </div>
     </div>
