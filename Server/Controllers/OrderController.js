@@ -57,7 +57,7 @@ const send_pay_otp = async (req, res, next) => {
   if (!email || !billno) {
     return next(errorhandler(404, "Not Found"));
   }
-  const validbill = orderModel.findOne({ billno });
+  const validbill = await orderModel.findOne({ billno });
   if (!validbill) {
     return next(errorhandler(400, "Bad Request"));
   }
@@ -75,7 +75,7 @@ const send_pay_otp = async (req, res, next) => {
       },
     });
     const message = await transporter.sendMail({
-      from: '"Yash Services" <process.env.EMAIL_URL>',
+      from: `"Yash Services" <${process.env.EMAIL_URL}>`,
       to: email,
       subject: "Hello otp",
       text: "Hello world?", // plain‑text body

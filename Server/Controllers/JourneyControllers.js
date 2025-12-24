@@ -83,9 +83,9 @@ const sendOTpEmail = async (req, res, next) => {
     }
     const otp = Math.floor(100000 + Math.random() * 90000);
     // Store OTP IN REDIS
-    redisClient.set(`otp:${email}`, otp.toString(), { EX: 90 });
+    await redisClient.set(`otp:${email}`, otp.toString(), { EX: 90 });
     // Create test account
-    const testaccount = await nodemailer.createTestAccount();
+    // const testaccount = await nodemailer.createTestAccount();
     // Create smtp server
     const transporter = await nodemailer.createTransport({
       service:"gmail",
@@ -96,7 +96,7 @@ const sendOTpEmail = async (req, res, next) => {
     });
 
     const message = await transporter.sendMail({
-      from: '"Yash Services" <process.env.EMAIL_URL>',
+      from: `"Yash Services" <${process.env.EMAIL_URL}>`,
       to: email,
       subject: "Hello otp",
       text: "Hello world?", // plain‑text body

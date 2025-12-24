@@ -61,10 +61,10 @@ const GoogleMaps = () => {
       );
 
       dispatch(JourneyStart(res.data));
-      setAddress(res.data.address_info.u_add);
+      setAddress(res?.data?.address_info?.u_add);
 
       const geo = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${res.data.address_info.u_add}`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${res?.data?.address_info?.u_add}`
       );
       const data = await geo.json();
 
