@@ -1,4 +1,4 @@
-const redisClient = require("../Config/redis");
+// const redisClient = require("../Config/redis");
 const errorhandler = require("../Middleware/custom_error");
 const { hire_model } = require("../Models/HireModel");
 const { orderModel } = require("../Models/OrderCompleteModel");
@@ -52,6 +52,7 @@ const payment = async (req, res, next) => {
     return next(errorhandler(500, err.message));
   }
 };
+const otp_save={}
 const send_pay_otp = async (req, res, next) => {
   const { email, billno } = req.body;
   if (!email || !billno) {
@@ -64,8 +65,12 @@ const send_pay_otp = async (req, res, next) => {
   try {
     const otp = Math.floor(100000 + Math.random() * 900000);
 
-    await redisClient.set(`otp:${email}`, otp.toString(), { EX: 120 });
-    const testaccount = await nodemailer.createTestAccount();
+    // await redisClient.set(`otp:${email}`, otp.toString(), { EX: 120 });
+    // const testaccount = await nodemailer.createTestAccount();
+    otp_save[email]={
+  otp:otp.toString(),
+  expiresAt:Date.now()+90*1000
+}
     // Create smtp server
     const transporter = await nodemailer.createTransport({
       service: "gmail",
@@ -100,14 +105,19 @@ const verify_pay_otp = async (req, res, next) => {
   if (!email) {
     return next(errorhandler(404, "Not Found"));
   }
-  const saved_otp = await redisClient.get(`otp:${email}`);
+  const saved_otp =otp_save[email]
   if (!saved_otp) {
     return next(errorhandler(400, "Otp Expired or Not Found"));
   }
-  if (saved_otp != otp) {
+  if (saved_otp.otp != otp) {
     return next(errorhandler(400, "InValid Otp"));
   }
-  await redisClient.del(`otp:${email}`);
+  if (Date.now() > saved_otp.expiresAt) {
+      delete otp_save[email];
+      return next(errorhandler(400, "OTP expired"));
+    }
+  delete otp_save[email];
+  // await redisClient.del(`otp:${email}`);
   res.status(200).json({
     status: 1,
     msg: "Otp Verified SuccessFully.",

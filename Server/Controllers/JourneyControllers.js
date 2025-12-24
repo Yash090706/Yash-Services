@@ -2,7 +2,7 @@ const errorhandler = require("../Middleware/custom_error");
 // const express=require("express")
 const { journey_model } = require("../Models/JourneyModel");
 
-const redisClient = require("../Config/redis");
+// const redisClient = require("../Config/redis");
 // const twilio=require("twilio")
 const nodemailer = require("nodemailer");
 const { user_model } = require("../Models/UserModel");
@@ -72,6 +72,8 @@ const get_journey_address = async (req, res, next) => {
 // }
 //
 // }
+const otp_save={
+}
 
 const sendOTpEmail = async (req, res, next) => {
   // First Connect with smtp server
@@ -83,10 +85,14 @@ const sendOTpEmail = async (req, res, next) => {
     }
     const otp = Math.floor(100000 + Math.random() * 90000);
     // Store OTP IN REDIS
-    await redisClient.set(`otp:${email}`, otp.toString(), { EX: 90 });
+    // await redisClient.set(`otp:${email}`, otp.toString(), { EX: 90 });
     // Create test account
     // const testaccount = await nodemailer.createTestAccount();
     // Create smtp server
+    otp_save[email]={
+      otp:otp.toString(),
+      expiresAt:Date.now()+90*1000
+    }
     const transporter = await nodemailer.createTransport({
       service:"gmail",
       auth: {
@@ -114,13 +120,17 @@ const verify_otp=async(req,res,next)=>{
         if(!otp || !email){
             return next(errorhandler(404,"OTP IS REQUIRED"))
         }
-        const savedOtp=await redisClient.get(`otp:${email}`)
+        const savedOtp=otp_save[email]
 
         if(!savedOtp){
             return next(errorhandler(400,"OTP IS EXPIRED"))
         }
+         if (Date.now() > savedOtp.expiresAt) {
+      delete otp_save[email];
+      return next(errorhandler(400, "OTP expired"));
+    }
 
-        if(savedOtp!==otp){
+        if(savedOtp.otp!==otp){
             return next(errorhandler(400,"OTP IS INVALID"))
         }
         if(!id){
@@ -128,7 +138,7 @@ const verify_otp=async(req,res,next)=>{
 
         }
 
-        await redisClient.del(`otp:${email}`)
+        delete otp_save[email];
         
 
        const up= await hire_model.findByIdAndUpdate({_id:id},{status:"Completed"})
