@@ -5,7 +5,6 @@ const redisClient = createClient({
     socket: {
         // We remove 'tls: true' here because rediss:// in the URL handles it.
         // But we keep 'rejectUnauthorized' for cloud compatibility.
-        tls:true,
         rejectUnauthorized: false, 
         keepAlive: 5000
     }
