@@ -1,18 +1,23 @@
 const { createClient } = require("redis");
 
 const redisClient = createClient({
-    url: process.env.REDIS_URL || process.env.INTERNAL_REDIS_URL,
-    socket: {
-        // We remove 'tls: true' here because rediss:// in the URL handles it.
-        // But we keep 'rejectUnauthorized' for cloud compatibility.
-        rejectUnauthorized: false, 
-        keepAlive: 5000
-    }
+  url: process.env.REDIS_URL,
 });
 
-redisClient.on("connect", () => console.log("Redis Connected Successfully"));
-redisClient.on("error", (err) => console.log("Redis Client Error:", err.message));
+redisClient.on("connect", () => {
+  console.log("✅ Redis Connected Successfully");
+});
 
-redisClient.connect().catch(console.error);
+redisClient.on("error", (err) => {
+  console.error("❌ Redis Error:", err);
+});
+
+(async () => {
+  try {
+    await redisClient.connect();
+  } catch (err) {
+    console.error("Redis connection failed:", err);
+  }
+})();
 
 module.exports = redisClient;
