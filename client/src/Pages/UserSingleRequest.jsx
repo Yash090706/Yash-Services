@@ -44,17 +44,6 @@ else{
           <h1>Visiting Charges:{info.v_charges}</h1>
           <h1>Experience:{info.experience}</h1>
           <div className="flex flex-row gap-5 mx-auto">
-            <Link to={`/google-maps/${info._id}`}>
-              <button
-                disabled={info.status == "Completed"}
-                className="bg-green-500 w-[150px] p-2 rounded-4xl text-white hover:cursor-pointer hover:opacity-70 "
-              >
-                <img
-                  src="https://cdn-icons-png.flaticon.com/128/684/684908.png"
-                  className="mx-auto w-10 h-10"
-                ></img>
-              </button>
-            </Link>
             <Link to={`/user-payment/${info._id}/${info.v_charges}`}>
               <button
                 className="bg-blue-500 p-3 rounded-4xl text-white hover:cursor-pointer hover:opacity-70"

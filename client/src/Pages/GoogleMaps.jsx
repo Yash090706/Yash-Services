@@ -183,14 +183,14 @@ const GoogleMaps = () => {
         <div className="bg-slate-200 p-4 rounded-lg mb-2 text-center font-mono">
           <p><b>Customer:</b> {address}</p>
           <p><b>Distance:</b> {distanceKm.toFixed(2)} km</p>
-          <p><b>Time:</b> {min}:{sec.toString().padStart(2, "0")}</p>
-          <p><b>Status:</b> {journeyStatus}</p>
+          <p><b>Estd Time:</b> {min}:{sec.toString().padStart(2, "0")}</p>
+          {/* <p><b>Status:</b> {journeyStatus}</p> */}
 
-          <div className="flex justify-center gap-3 mt-2">
-            <button onClick={startJourney} className="bg-green-500 px-3 py-1 text-white rounded">Start</button>
-            <button onClick={pauseJourney} className="bg-yellow-500 px-3 py-1 text-white rounded">Pause</button>
-            <button onClick={endJourney} className="bg-red-500 px-3 py-1 text-white rounded">End</button>
-          </div>
+          {/* <div className="flex justify-center gap-3 mt-2"> */}
+            {/* <button onClick={startJourney} className="bg-green-500 px-3 py-1 text-white rounded">Start</button> */}
+            {/* <button onClick={pauseJourney} className="bg-yellow-500 px-3 py-1 text-white rounded">Pause</button> */}
+            {/* <button onClick={endJourney} className="bg-red-500 px-3 py-1 text-white rounded">End</button> */}
+          {/* </div> */}
         </div>
       )}
 
