@@ -135,6 +135,7 @@ const WorkerSingleRequest = () => {
 
       if (!send_otp) {
         toast.error("Failed to send otp,Try Again");
+        return;
       }
       toast.success("Otp sent on user Email please receive from them.");
 
@@ -150,7 +151,7 @@ const WorkerSingleRequest = () => {
         return;
       }
       const res = await API.post(
-        `/yash-services/services/verify/${request._id}`,
+        `/yash-services/services/verify/${request?._id}`,
         { email, otp }
       );
       console.log(res.data.up);
@@ -189,17 +190,17 @@ const WorkerSingleRequest = () => {
   const fetch_email = async () => {
     try {
       const res = await API.post(
-        `/yash-services/services/fetch_email/${request.userid}`
+        `/yash-services/services/fetch_email/${request?.userid}`
       );
       console.log(res.data.email_info.email);
-      setemail(res.data.email_info.email);
+      setemail(res?.data?.email_info?.email);
     } catch (err) {
       console.log(err);
     }
   };
   useEffect(() => {
     fetch_email();
-  }, [request.userid]);
+  }, [request?.userid]);
 const send_otp = async () => {
   try {
     const res = await API.post("/yash-services/services/email", { email });
